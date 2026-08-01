@@ -235,7 +235,7 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
 
         <div className="rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.12),_rgba(9,9,11,0.96)_62%)] px-4 py-6 shadow-2xl shadow-black/30">
           <div className="flex justify-center">
-            <ProgressRing progress={overallProgress} phase={phase} label={`${PHASE_LABELS[phase]} progress ${Math.round(overallProgress * 100)} percent`}>
+            <ProgressRing progress={phaseProgress} phase={phase} label={`${PHASE_LABELS[phase]} phase progress ${Math.round(phaseProgress * 100)} percent`}>
               <TimerDisplay
                 phase={phase}
                 remaining={remaining}
@@ -249,12 +249,12 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
           <div className="mt-5 h-2 overflow-hidden rounded-full bg-zinc-800">
             <div
               className="h-full rounded-full transition-all duration-700 ease-out"
-              style={{ width: `${Math.max(phaseProgress * 100, phase === 'complete' ? 100 : 0)}%`, backgroundColor: accent }}
+              style={{ width: `${Math.max(overallProgress * 100, phase === 'complete' ? 100 : 0)}%`, backgroundColor: accent }}
             />
           </div>
           <div className="mt-2 flex items-center justify-between text-xs uppercase tracking-[0.24em] text-zinc-500">
-            <span>{PHASE_LABELS[phase]}</span>
-            <span>{Math.round(phaseProgress * 100)}% of phase</span>
+            <span>Overall workout</span>
+            <span>{Math.round(overallProgress * 100)}% complete</span>
           </div>
         </div>
 
