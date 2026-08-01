@@ -4,6 +4,7 @@ import { deleteWorkout } from '../store/workoutStore'
 import { PHASE_COLORS } from '../utils/timerUi'
 import { calculateTotalDuration } from '../utils/timerSequence'
 import { formatCompactDuration } from '../utils/timerUi'
+import type { KeyboardEvent, MouseEvent } from 'react'
 
 interface WorkoutCardProps {
   workout: WorkoutConfig
@@ -30,14 +31,6 @@ function TrashIcon() {
   )
 }
 
-function PlayIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <polygon points="5 3 19 12 5 21 5 3" />
-    </svg>
-  )
-}
-
 interface StatCellProps {
   label: string
   value: string
@@ -59,8 +52,30 @@ function StatCell({ label, value, accent }: StatCellProps) {
 export default function WorkoutCard({ workout, onDelete }: WorkoutCardProps) {
   const navigate = useNavigate()
   const totalDuration = calculateTotalDuration(workout)
+  const timerPath = `/workout/${workout.id}/timer`
 
-  const handleDelete = () => {
+  const handleOpenWorkout = () => {
+    navigate(timerPath)
+  }
+
+  const handleCardKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.target !== event.currentTarget) {
+      return
+    }
+
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      handleOpenWorkout()
+    }
+  }
+
+  const stopCardNavigation = (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation()
+  }
+
+  const handleDelete = (event: MouseEvent<HTMLButtonElement>) => {
+    stopCardNavigation(event)
+
     if (confirm(`Delete "${workout.name}"?`)) {
       deleteWorkout(workout.id)
       onDelete?.()
@@ -68,7 +83,14 @@ export default function WorkoutCard({ workout, onDelete }: WorkoutCardProps) {
   }
 
   return (
-    <div className="rounded-[2rem] border border-white/10 bg-zinc-900/80 shadow-xl shadow-black/25">
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={handleOpenWorkout}
+      onKeyDown={handleCardKeyDown}
+      aria-label={`Open ${workout.name} workout`}
+      className="rounded-[2rem] border border-white/10 bg-zinc-900/80 shadow-xl shadow-black/25 transition hover:bg-zinc-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-400 active:scale-[0.995]"
+    >
       <div className="flex items-start justify-between p-5 pb-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-zinc-500">Workout</p>
@@ -76,7 +98,10 @@ export default function WorkoutCard({ workout, onDelete }: WorkoutCardProps) {
         </div>
         <div className="flex gap-1.5">
           <button
-            onClick={() => navigate(`/workout/${workout.id}/edit`)}
+            onClick={(event) => {
+              stopCardNavigation(event)
+              navigate(`/workout/${workout.id}/edit`)
+            }}
             aria-label="Edit workout"
             className="rounded-full border border-white/10 bg-white/5 p-2 text-zinc-400 transition hover:bg-white/10 hover:text-white"
           >
@@ -114,16 +139,6 @@ export default function WorkoutCard({ workout, onDelete }: WorkoutCardProps) {
           <span className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">Total</span>
           <span className="text-sm font-bold text-white">{formatCompactDuration(totalDuration)}</span>
         </div>
-      </div>
-
-      <div className="p-5 pt-4">
-        <button
-          onClick={() => navigate(`/workout/${workout.id}/timer`)}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-500 active:scale-[0.99]"
-        >
-          <PlayIcon />
-          Start
-        </button>
       </div>
     </div>
   )

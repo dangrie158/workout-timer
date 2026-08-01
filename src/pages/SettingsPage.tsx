@@ -52,10 +52,10 @@ interface PreferenceToggleProps {
 
 function PreferenceToggle({ item, checked, onChange }: PreferenceToggleProps) {
   return (
-    <label className="flex cursor-pointer items-start gap-4 rounded-3xl border border-white/8 bg-white/[0.03] p-4 transition hover:bg-white/[0.05]">
+    <label className="flex cursor-pointer items-start gap-4 rounded-3xl border border-white/6 bg-white/[0.02] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition hover:bg-white/[0.04]">
       <div className="flex-1">
         <div className="flex items-center gap-2">
-          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-zinc-400">
+          <span className="rounded-full border border-white/8 bg-white/[0.04] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-zinc-400">
             {item.badge}
           </span>
           <span className="text-base font-semibold text-white">{item.title}</span>
@@ -90,11 +90,11 @@ function CountdownRow({ value, onChange }: CountdownRowProps) {
     <>
       <button
         onClick={() => setPickerOpen(true)}
-        className="flex w-full cursor-pointer items-start gap-4 rounded-3xl border border-white/8 bg-white/[0.03] p-4 text-left transition hover:bg-white/[0.05]"
+        className="flex w-full cursor-pointer items-start gap-4 rounded-3xl border border-white/6 bg-white/[0.02] p-4 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition hover:bg-white/[0.04]"
       >
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-zinc-400">
+            <span className="rounded-full border border-white/8 bg-white/[0.04] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-zinc-400">
               Audio
             </span>
             <span className="text-base font-semibold text-white">Countdown cue length</span>
@@ -104,7 +104,7 @@ function CountdownRow({ value, onChange }: CountdownRowProps) {
             Set to 0 to disable countdown beeps.
           </p>
         </div>
-        <span className="mt-1 shrink-0 rounded-2xl border border-white/10 bg-white/5 px-3 py-1 text-base font-semibold tabular-nums text-white">
+        <span className="mt-1 shrink-0 rounded-2xl border border-white/8 bg-white/[0.04] px-3 py-1 text-base font-semibold tabular-nums text-white">
           {value}s
         </span>
         <span className="mt-2 shrink-0 text-zinc-500" aria-hidden="true">
@@ -161,7 +161,7 @@ export default function SettingsPage() {
           {preferenceSections.map((section) => (
             <section
               key={section.heading}
-              className="rounded-[1.75rem] border border-white/8 bg-zinc-900/70 p-4 shadow-xl shadow-black/20"
+              className="rounded-[1.75rem] border border-white/6 bg-zinc-900/55 p-4 shadow-2xl shadow-black/20"
             >
               <div className="mb-4">
                 <h2 className="text-sm font-semibold uppercase tracking-[0.24em] text-zinc-500">{section.heading}</h2>
