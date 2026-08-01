@@ -11,6 +11,32 @@ import { getWorkouts } from '../store/workoutStore'
 import type { TimerPhase, WorkoutConfig } from '../types'
 import { PHASE_COLORS, PHASE_LABELS, formatCompactDuration, getPhaseDuration } from '../utils/timerUi'
 
+function PlayIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <polygon points="5 3 19 12 5 21 5 3" />
+    </svg>
+  )
+}
+
+function PauseIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <rect x="6" y="4" width="4" height="16" rx="1" />
+      <rect x="14" y="4" width="4" height="16" rx="1" />
+    </svg>
+  )
+}
+
+function RestartIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3 2v6h6" />
+      <path d="M3 8a9 9 0 1 0 2.64-4.36L3 6" />
+    </svg>
+  )
+}
+
 function getPhaseProgress(duration: number, remaining: number, phase: TimerPhase): number {
   if (phase === 'complete') {
     return 1
@@ -161,16 +187,9 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
     }
 
     start()
-  }, [handleReset, isPaused, isRunning, phase, resume, start])
+  }, [handleReset, isPaused, isRunning, pause, phase, resume, start])
 
   const primaryLabel = phase === 'complete' ? 'Start again' : isRunning ? 'Pause' : isPaused ? 'Resume' : 'Start'
-  const primaryClasses =
-    phase === 'complete'
-      ? 'bg-emerald-500 hover:bg-emerald-400'
-      : isRunning
-        ? 'bg-amber-500 hover:bg-amber-400'
-        : 'bg-blue-600 hover:bg-blue-500'
-
   useEffect(() => {
     const isTypingField = (target: EventTarget | null): boolean => {
       if (!(target instanceof HTMLElement)) {
@@ -233,7 +252,29 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
           </div>
         </div>
 
-        <div className="rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.12),_rgba(9,9,11,0.96)_62%)] px-4 py-6 shadow-2xl shadow-black/30">
+        <div className="relative rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.12),_rgba(9,9,11,0.96)_62%)] px-4 py-6 shadow-2xl shadow-black/30">
+          <button
+            onClick={handleReset}
+            disabled={!canReset}
+            aria-label="Reset"
+            className="absolute left-4 top-4 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-zinc-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <RestartIcon />
+          </button>
+          <button
+            onClick={handlePrimaryAction}
+            aria-label={primaryLabel}
+            className={`absolute right-4 top-4 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-white transition active:scale-[0.97] ${
+              phase === 'complete'
+                ? 'bg-emerald-500 hover:bg-emerald-400'
+                : isRunning
+                  ? 'bg-amber-500 hover:bg-amber-400'
+                  : 'bg-blue-600 hover:bg-blue-500'
+            }`}
+          >
+            {isRunning ? <PauseIcon /> : <PlayIcon />}
+          </button>
+
           <div className="flex justify-center">
             <ProgressRing
               progress={phaseProgress}
@@ -320,21 +361,6 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
             </div>
           ) : null}
 
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={handlePrimaryAction}
-              className={`rounded-2xl px-4 py-4 text-base font-semibold text-white transition active:scale-[0.99] ${primaryClasses}`}
-            >
-              {primaryLabel}
-            </button>
-            <button
-              onClick={handleReset}
-              disabled={!canReset}
-              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-base font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Reset
-            </button>
-          </div>
           <p className="mt-4 text-center text-xs uppercase tracking-[0.24em] text-zinc-500">
             Space to start or pause · R to reset · Esc to exit
           </p>
