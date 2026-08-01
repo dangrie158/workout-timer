@@ -1,27 +1,51 @@
-import type { GlobalSettings } from '../types/workout';
+import type { GlobalSettings } from '../types/workout'
 
-const SETTINGS_KEY = 'settings';
+export const SETTINGS_KEY = 'settings'
 
-const DEFAULT_SETTINGS: GlobalSettings = {
+export const DEFAULT_SETTINGS: GlobalSettings = {
   soundEnabled: true,
   vibrationEnabled: true,
   autostart: false,
-};
+}
+
+function normalizeSettings(settings: unknown): GlobalSettings {
+  if (!settings || typeof settings !== 'object') {
+    return { ...DEFAULT_SETTINGS }
+  }
+
+  const candidate = settings as Partial<GlobalSettings>
+
+  return {
+    soundEnabled:
+      typeof candidate.soundEnabled === 'boolean' ? candidate.soundEnabled : DEFAULT_SETTINGS.soundEnabled,
+    vibrationEnabled:
+      typeof candidate.vibrationEnabled === 'boolean'
+        ? candidate.vibrationEnabled
+        : DEFAULT_SETTINGS.vibrationEnabled,
+    autostart: typeof candidate.autostart === 'boolean' ? candidate.autostart : DEFAULT_SETTINGS.autostart,
+  }
+}
 
 export function getSettings(): GlobalSettings {
   try {
-    const stored = localStorage.getItem(SETTINGS_KEY);
-    return stored ? JSON.parse(stored) : DEFAULT_SETTINGS;
+    const stored = localStorage.getItem(SETTINGS_KEY)
+    return stored ? normalizeSettings(JSON.parse(stored)) : { ...DEFAULT_SETTINGS }
   } catch (error) {
-    console.error('Failed to parse settings from localStorage:', error);
-    return DEFAULT_SETTINGS;
+    console.error('Failed to parse settings from localStorage:', error)
+    return { ...DEFAULT_SETTINGS }
   }
 }
 
 export function saveSettings(settings: GlobalSettings): void {
   try {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(normalizeSettings(settings)))
   } catch (error) {
-    console.error('Failed to save settings to localStorage:', error);
+    console.error('Failed to save settings to localStorage:', error)
   }
+}
+
+export function updateSettings(nextSettings: Partial<GlobalSettings>): GlobalSettings {
+  const mergedSettings = { ...getSettings(), ...nextSettings }
+  saveSettings(mergedSettings)
+  return mergedSettings
 }

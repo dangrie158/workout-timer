@@ -1,64 +1,63 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { getSettings, saveSettings } from './settingsStore';
-import type { GlobalSettings } from '../types/workout';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { DEFAULT_SETTINGS, getSettings, saveSettings, updateSettings } from './settingsStore'
+import type { GlobalSettings } from '../types/workout'
 
 describe('SettingsStore', () => {
   beforeEach(() => {
-    localStorage.clear();
-  });
+    localStorage.clear()
+  })
 
   afterEach(() => {
-    localStorage.clear();
-  });
+    localStorage.clear()
+  })
 
-  it('should return default settings when none are saved', () => {
-    const settings = getSettings();
-    expect(settings.soundEnabled).toBe(true);
-    expect(settings.vibrationEnabled).toBe(true);
-    expect(settings.autostart).toBe(false);
-  });
+  it('returns default settings when none are saved', () => {
+    expect(getSettings()).toEqual(DEFAULT_SETTINGS)
+  })
 
-  it('should save settings to localStorage', () => {
+  it('saves settings to localStorage', () => {
     const newSettings: GlobalSettings = {
       soundEnabled: false,
       vibrationEnabled: false,
       autostart: true,
-    };
+    }
 
-    saveSettings(newSettings);
-    const retrieved = getSettings();
-    expect(retrieved).toEqual(newSettings);
-  });
+    saveSettings(newSettings)
 
-  it('should persist settings across multiple calls', () => {
-    const settings1: GlobalSettings = {
+    expect(getSettings()).toEqual(newSettings)
+  })
+
+  it('persists settings across multiple calls', () => {
+    const settings: GlobalSettings = {
       soundEnabled: false,
       vibrationEnabled: true,
       autostart: true,
-    };
+    }
 
-    saveSettings(settings1);
-    const retrieved1 = getSettings();
-    expect(retrieved1).toEqual(settings1);
+    saveSettings(settings)
 
-    const retrieved2 = getSettings();
-    expect(retrieved2).toEqual(settings1);
-  });
+    expect(getSettings()).toEqual(settings)
+    expect(getSettings()).toEqual(settings)
+  })
 
-  it('should update partial settings', () => {
-    const initialSettings: GlobalSettings = {
-      soundEnabled: true,
-      vibrationEnabled: true,
-      autostart: false,
-    };
+  it('updates partial settings while preserving the rest', () => {
+    saveSettings(DEFAULT_SETTINGS)
 
-    saveSettings(initialSettings);
-    const updated: Partial<GlobalSettings> = { autostart: true };
-    saveSettings({ ...getSettings(), ...updated });
+    const updated = updateSettings({ autostart: true })
 
-    const retrieved = getSettings();
-    expect(retrieved.soundEnabled).toBe(true);
-    expect(retrieved.vibrationEnabled).toBe(true);
-    expect(retrieved.autostart).toBe(true);
-  });
-});
+    expect(updated).toEqual({
+      ...DEFAULT_SETTINGS,
+      autostart: true,
+    })
+    expect(getSettings()).toEqual(updated)
+  })
+
+  it('fills missing stored keys with defaults', () => {
+    localStorage.setItem('settings', JSON.stringify({ soundEnabled: false }))
+
+    expect(getSettings()).toEqual({
+      ...DEFAULT_SETTINGS,
+      soundEnabled: false,
+    })
+  })
+})

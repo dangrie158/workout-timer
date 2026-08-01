@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import PhaseBlock from '../components/PhaseBlock'
 import ProgressRing from '../components/ProgressRing'
 import TimerDisplay from '../components/TimerDisplay'
 import { useAudio, type AudioPhase } from '../hooks/useAudio'
 import { useTimer } from '../hooks/useTimer'
+import { getSettings } from '../store/settingsStore'
 import { getWorkouts } from '../store/workoutStore'
 import type { TimerPhase, WorkoutConfig } from '../types'
 import { PHASE_COLORS, PHASE_LABELS, formatCompactDuration, getPhaseDuration } from '../utils/timerUi'
@@ -56,6 +57,8 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
   const { elapsed, remaining, phase, round, cycle, isPaused, isRunning, totalDuration, start, pause, resume, reset } =
     useTimer(workout)
   const previousPhaseRef = useRef<AudioPhase | null>(null)
+  const autostartWorkoutIdRef = useRef<string | null>(null)
+  const lastCountdownVibrationKeyRef = useRef<string | null>(null)
 
   const phaseDuration = getPhaseDuration(workout, phase)
   const phaseProgress = getPhaseProgress(phaseDuration, remaining, phase)
@@ -63,14 +66,52 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
   const accent = PHASE_COLORS[phase]
   const canReset = isRunning || isPaused || phase === 'complete' || elapsed > 0
 
+  const triggerVibration = useCallback((pattern: number | number[]) => {
+    if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') {
+      return
+    }
+
+    if (!getSettings().vibrationEnabled) {
+      return
+    }
+
+    navigator.vibrate(pattern)
+  }, [])
+
+  useEffect(() => {
+    if (!getSettings().autostart) {
+      return
+    }
+
+    if (autostartWorkoutIdRef.current === workout.id || isRunning || isPaused || phase === 'complete') {
+      return
+    }
+
+    autostartWorkoutIdRef.current = workout.id
+    start()
+  }, [isPaused, isRunning, phase, start, workout.id])
+
   useEffect(() => {
     if (!isRunning && phase !== 'complete') {
       return
     }
 
-    playPhaseTransition(previousPhaseRef.current, phase)
+    const previousPhase = previousPhaseRef.current
+
+    playPhaseTransition(previousPhase, phase)
+
+    if (previousPhase !== phase) {
+      if (phase === 'complete') {
+        triggerVibration([180, 60, 240])
+      } else if (phase === 'work') {
+        triggerVibration([80, 40, 120])
+      } else {
+        triggerVibration(90)
+      }
+    }
+
     previousPhaseRef.current = phase === 'complete' ? null : phase
-  }, [isRunning, phase, playPhaseTransition])
+  }, [isRunning, phase, playPhaseTransition, triggerVibration])
 
   useEffect(() => {
     if (!isRunning || phase === 'complete') {
@@ -78,10 +119,25 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
     }
 
     playCountdownBeep(phase as AudioPhase, remaining)
-  }, [isRunning, phase, playCountdownBeep, remaining])
+
+    const roundedSeconds = Math.ceil(remaining)
+    if (roundedSeconds <= 0 || roundedSeconds > 10) {
+      lastCountdownVibrationKeyRef.current = null
+      return
+    }
+
+    const countdownKey = `${phase}:${roundedSeconds}`
+    if (lastCountdownVibrationKeyRef.current === countdownKey) {
+      return
+    }
+
+    lastCountdownVibrationKeyRef.current = countdownKey
+    triggerVibration(25)
+  }, [isRunning, phase, playCountdownBeep, remaining, triggerVibration])
 
   const handleReset = () => {
     previousPhaseRef.current = null
+    lastCountdownVibrationKeyRef.current = null
     reset()
   }
 
@@ -184,12 +240,20 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
         <div className="mt-4 rounded-3xl border border-white/5 bg-zinc-900/80 p-4">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-sm font-semibold uppercase tracking-[0.24em] text-zinc-500">Workout structure</h2>
-            <span className="text-sm text-zinc-400">{workout.rounds} rounds × {workout.cycles} cycles</span>
+            <span className="text-sm text-zinc-400">
+              {workout.rounds} rounds × {workout.cycles} cycles
+            </span>
           </div>
           <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
             <PhaseBlock label="Prepare" value={formatCompactDuration(workout.prepare)} accent={PHASE_COLORS.prepare} isActive={phase === 'prepare'} />
             <PhaseBlock label="Work" value={formatCompactDuration(workout.work)} accent={PHASE_COLORS.work} isActive={phase === 'work'} />
-            <PhaseBlock label="Rest" value={formatCompactDuration(workout.rest)} accent={PHASE_COLORS.rest} isActive={phase === 'rest' || phase === 'restBetweenCycles'} detail={workout.cycles > 1 ? `Cycle rest ${formatCompactDuration(workout.restBetweenCycles)}` : undefined} />
+            <PhaseBlock
+              label="Rest"
+              value={formatCompactDuration(workout.rest)}
+              accent={PHASE_COLORS.rest}
+              isActive={phase === 'rest' || phase === 'restBetweenCycles'}
+              detail={workout.cycles > 1 ? `Cycle rest ${formatCompactDuration(workout.restBetweenCycles)}` : undefined}
+            />
             <PhaseBlock label="Cooldown" value={formatCompactDuration(workout.cooldown)} accent={PHASE_COLORS.cooldown} isActive={phase === 'cooldown'} />
           </div>
         </div>

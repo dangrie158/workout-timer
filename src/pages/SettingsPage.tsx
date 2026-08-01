@@ -1,3 +1,144 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { getSettings, updateSettings } from '../store/settingsStore'
+import type { GlobalSettings } from '../types'
+
+interface PreferenceItem {
+  key: keyof GlobalSettings
+  title: string
+  description: string
+  badge: string
+}
+
+const preferenceSections: Array<{ heading: string; blurb: string; items: PreferenceItem[] }> = [
+  {
+    heading: 'Audio & haptics',
+    blurb: 'Fine-tune how the timer keeps you on pace during every interval.',
+    items: [
+      {
+        key: 'soundEnabled',
+        title: 'Sound cues',
+        description: 'Play transition tones, final workout chime, and the last 10-second countdown beeps.',
+        badge: 'Audio',
+      },
+      {
+        key: 'vibrationEnabled',
+        title: 'Vibration cues',
+        description: 'Trigger short haptics for transitions and countdown ticks on supported mobile devices.',
+        badge: 'Haptics',
+      },
+    ],
+  },
+  {
+    heading: 'Timer behavior',
+    blurb: 'Choose how the workout starts once you open a saved routine.',
+    items: [
+      {
+        key: 'autostart',
+        title: 'Autostart workout',
+        description: 'Begin the timer automatically when you open the workout screen.',
+        badge: 'Flow',
+      },
+    ],
+  },
+]
+
+interface PreferenceToggleProps {
+  item: PreferenceItem
+  checked: boolean
+  onChange: (key: keyof GlobalSettings, value: boolean) => void
+}
+
+function PreferenceToggle({ item, checked, onChange }: PreferenceToggleProps) {
+  return (
+    <label className="flex cursor-pointer items-start gap-4 rounded-3xl border border-white/8 bg-white/[0.03] p-4 transition hover:bg-white/[0.05]">
+      <div className="flex-1">
+        <div className="flex items-center gap-2">
+          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-zinc-400">
+            {item.badge}
+          </span>
+          <span className="text-base font-semibold text-white">{item.title}</span>
+        </div>
+        <p className="mt-2 text-sm leading-6 text-zinc-400">{item.description}</p>
+      </div>
+
+      <span className="relative mt-1 inline-flex h-7 w-12 shrink-0 items-center">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(event) => onChange(item.key, event.target.checked)}
+          className="peer sr-only"
+          aria-label={item.title}
+        />
+        <span className="absolute inset-0 rounded-full bg-zinc-800 transition peer-checked:bg-blue-500 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-blue-400" />
+        <span className="absolute left-1 h-5 w-5 rounded-full bg-white shadow-lg transition peer-checked:translate-x-5" />
+      </span>
+    </label>
+  )
+}
+
 export default function SettingsPage() {
-  return <div className="p-4 text-white bg-zinc-900 min-h-screen">Settings</div>
+  const navigate = useNavigate()
+  const [settings, setSettings] = useState(() => getSettings())
+
+  const handleSettingChange = (key: keyof GlobalSettings, value: boolean) => {
+    const nextSettings = updateSettings({ [key]: value })
+    setSettings(nextSettings)
+  }
+
+  return (
+    <div className="min-h-screen bg-zinc-950 text-white">
+      <div className="mx-auto flex min-h-screen w-full max-w-md flex-col px-4 pb-8 pt-4">
+        <div className="mb-6 flex items-center justify-between">
+          <button
+            onClick={() => navigate('/')}
+            className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/10"
+          >
+            ← Workouts
+          </button>
+          <div className="text-right">
+            <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">Preferences</p>
+            <h1 className="text-lg font-semibold text-white">Global settings</h1>
+          </div>
+        </div>
+
+        <div className="rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.18),_rgba(9,9,11,0.96)_62%)] p-5 shadow-2xl shadow-black/30">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-blue-300">Saved on this device</p>
+          <h2 className="mt-3 text-2xl font-semibold text-white">Tune your timer experience</h2>
+          <p className="mt-3 text-sm leading-6 text-zinc-300">
+            Changes apply instantly and stay available the next time you open Workout Timer.
+          </p>
+        </div>
+
+        <div className="mt-6 space-y-5">
+          {preferenceSections.map((section) => (
+            <section
+              key={section.heading}
+              className="rounded-[1.75rem] border border-white/8 bg-zinc-900/70 p-4 shadow-xl shadow-black/20"
+            >
+              <div className="mb-4">
+                <h2 className="text-sm font-semibold uppercase tracking-[0.24em] text-zinc-500">{section.heading}</h2>
+                <p className="mt-2 text-sm leading-6 text-zinc-400">{section.blurb}</p>
+              </div>
+
+              <div className="space-y-3">
+                {section.items.map((item) => (
+                  <PreferenceToggle
+                    key={item.key}
+                    item={item}
+                    checked={settings[item.key]}
+                    onChange={handleSettingChange}
+                  />
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+
+        <div className="mt-auto pt-6 text-center text-xs uppercase tracking-[0.24em] text-zinc-600">
+          Sound, vibration, and autostart are ready for your next session.
+        </div>
+      </div>
+    </div>
+  )
 }

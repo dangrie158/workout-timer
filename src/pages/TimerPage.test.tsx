@@ -115,6 +115,19 @@ describe('TimerPage', () => {
     expect(playPhaseTransition).toHaveBeenCalledWith('work', 'complete')
   })
 
+  it('autostarts the timer when the global preference is enabled', () => {
+    localStorage.setItem('workouts', JSON.stringify([countdownWorkout]))
+    localStorage.setItem(
+      'settings',
+      JSON.stringify({ soundEnabled: true, vibrationEnabled: true, autostart: true })
+    )
+
+    renderTimerPage()
+
+    expect(screen.getByRole('button', { name: 'Pause' })).toBeInTheDocument()
+    expect(playPhaseTransition).toHaveBeenCalledWith(null, 'prepare')
+  })
+
   it('routes cycle rest transitions and countdown beeps through the timer page', () => {
     localStorage.setItem('workouts', JSON.stringify([cycleRestWorkout]))
     renderTimerPage('cycle-rest')
