@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getSettings, updateSettings } from '../store/settingsStore'
 import type { GlobalSettings } from '../types'
+import NumberPicker from '../components/NumberPicker'
 
 interface PreferenceItem {
   key: keyof GlobalSettings
@@ -18,7 +19,7 @@ const preferenceSections: Array<{ heading: string; blurb: string; items: Prefere
       {
         key: 'soundEnabled',
         title: 'Sound cues',
-        description: 'Play transition tones, final workout chime, and the last 10-second countdown beeps.',
+        description: 'Play transition tones, final workout chime, and countdown beeps.',
         badge: 'Audio',
       },
       {
@@ -77,12 +78,61 @@ function PreferenceToggle({ item, checked, onChange }: PreferenceToggleProps) {
   )
 }
 
+interface CountdownRowProps {
+  value: number
+  onChange: (value: number) => void
+}
+
+function CountdownRow({ value, onChange }: CountdownRowProps) {
+  const [pickerOpen, setPickerOpen] = useState(false)
+
+  return (
+    <>
+      <button
+        onClick={() => setPickerOpen(true)}
+        className="flex w-full cursor-pointer items-start gap-4 rounded-3xl border border-white/8 bg-white/[0.03] p-4 text-left transition hover:bg-white/[0.05]"
+      >
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-zinc-400">
+              Audio
+            </span>
+            <span className="text-base font-semibold text-white">Countdown cue length</span>
+          </div>
+          <p className="mt-2 text-sm leading-6 text-zinc-400">
+            Play a beep for the last <span className="text-white">{value}</span> second{value !== 1 ? 's' : ''} of each phase.
+            Set to 0 to disable countdown beeps.
+          </p>
+        </div>
+        <span className="mt-1 shrink-0 rounded-2xl border border-white/10 bg-white/5 px-3 py-1 text-base font-semibold tabular-nums text-white">
+          {value}s
+        </span>
+      </button>
+
+      <NumberPicker
+        isOpen={pickerOpen}
+        title="Countdown cue length"
+        value={value}
+        onChange={onChange}
+        onClose={() => setPickerOpen(false)}
+        min={0}
+        max={30}
+      />
+    </>
+  )
+}
+
 export default function SettingsPage() {
   const navigate = useNavigate()
   const [settings, setSettings] = useState(() => getSettings())
 
-  const handleSettingChange = (key: keyof GlobalSettings, value: boolean) => {
+  const handleToggleChange = (key: keyof GlobalSettings, value: boolean) => {
     const nextSettings = updateSettings({ [key]: value })
+    setSettings(nextSettings)
+  }
+
+  const handleCountdownChange = (value: number) => {
+    const nextSettings = updateSettings({ countdownSeconds: value })
     setSettings(nextSettings)
   }
 
@@ -126,10 +176,13 @@ export default function SettingsPage() {
                   <PreferenceToggle
                     key={item.key}
                     item={item}
-                    checked={settings[item.key]}
-                    onChange={handleSettingChange}
+                    checked={settings[item.key] as boolean}
+                    onChange={handleToggleChange}
                   />
                 ))}
+                {section.heading === 'Audio & haptics' && (
+                  <CountdownRow value={settings.countdownSeconds} onChange={handleCountdownChange} />
+                )}
               </div>
             </section>
           ))}

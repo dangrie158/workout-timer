@@ -29,4 +29,5 @@ export interface GlobalSettings {
   soundEnabled: boolean;
   vibrationEnabled: boolean;
   autostart: boolean;
+  countdownSeconds: number;
 }

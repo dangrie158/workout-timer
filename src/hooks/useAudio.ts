@@ -186,9 +186,10 @@ export function useAudio(): UseAudioReturn {
   const playCountdownBeep = useCallback(
     (phase: AudioPhase, remainingSeconds: number) => {
       const roundedSeconds = Math.ceil(remainingSeconds)
+      const threshold = getSettings().countdownSeconds
 
-      if (roundedSeconds <= 0 || roundedSeconds > 10) {
-        if (roundedSeconds > 10 || roundedSeconds <= 0) {
+      if (roundedSeconds <= 0 || roundedSeconds > threshold) {
+        if (roundedSeconds > threshold || roundedSeconds <= 0) {
           lastCountdownKeyRef.current = null
         }
         return

@@ -6,6 +6,7 @@ export const DEFAULT_SETTINGS: GlobalSettings = {
   soundEnabled: true,
   vibrationEnabled: true,
   autostart: false,
+  countdownSeconds: 10,
 }
 
 function normalizeSettings(settings: unknown): GlobalSettings {
@@ -23,6 +24,10 @@ function normalizeSettings(settings: unknown): GlobalSettings {
         ? candidate.vibrationEnabled
         : DEFAULT_SETTINGS.vibrationEnabled,
     autostart: typeof candidate.autostart === 'boolean' ? candidate.autostart : DEFAULT_SETTINGS.autostart,
+    countdownSeconds:
+      typeof candidate.countdownSeconds === 'number' && candidate.countdownSeconds >= 0
+        ? Math.round(candidate.countdownSeconds)
+        : DEFAULT_SETTINGS.countdownSeconds,
   }
 }
 

@@ -8,6 +8,7 @@ interface ProgressRingProps {
   size?: number
   strokeWidth?: number
   label: string
+  onClick?: () => void
   children?: ReactNode
 }
 
@@ -17,6 +18,7 @@ export default function ProgressRing({
   size = 280,
   strokeWidth = 18,
   label,
+  onClick,
   children,
 }: ProgressRingProps) {
   const safeProgress = Math.min(1, Math.max(0, progress))
@@ -24,8 +26,8 @@ export default function ProgressRing({
   const circumference = 2 * Math.PI * radius
   const dashOffset = circumference * (1 - safeProgress)
 
-  return (
-    <div className="relative inline-flex items-center justify-center" aria-label={label}>
+  const Inner = (
+    <>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="drop-shadow-[0_0_24px_rgba(255,255,255,0.08)]">
         <circle
           cx={size / 2}
@@ -53,6 +55,25 @@ export default function ProgressRing({
       <div className="absolute inset-7 rounded-full border border-white/5 bg-zinc-950/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
         <div className="flex h-full items-center justify-center">{children}</div>
       </div>
+    </>
+  )
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        aria-label={label}
+        className="relative inline-flex items-center justify-center rounded-full transition-transform duration-150 active:scale-[0.97]"
+      >
+        {Inner}
+      </button>
+    )
+  }
+
+  return (
+    <div className="relative inline-flex items-center justify-center" aria-label={label}>
+      {Inner}
     </div>
   )
 }

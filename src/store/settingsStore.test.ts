@@ -20,6 +20,7 @@ describe('SettingsStore', () => {
       soundEnabled: false,
       vibrationEnabled: false,
       autostart: true,
+      countdownSeconds: 10,
     }
 
     saveSettings(newSettings)
@@ -32,6 +33,7 @@ describe('SettingsStore', () => {
       soundEnabled: false,
       vibrationEnabled: true,
       autostart: true,
+      countdownSeconds: 10,
     }
 
     saveSettings(settings)

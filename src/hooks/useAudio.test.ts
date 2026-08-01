@@ -36,6 +36,7 @@ const defaultSettings: GlobalSettings = {
   soundEnabled: true,
   vibrationEnabled: true,
   autostart: false,
+  countdownSeconds: 10,
 }
 
 let oscillatorCount = 0

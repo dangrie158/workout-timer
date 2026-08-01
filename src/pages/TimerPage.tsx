@@ -124,7 +124,7 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
     playCountdownBeep(phase as AudioPhase, remaining)
 
     const roundedSeconds = Math.ceil(remaining)
-    if (roundedSeconds <= 0 || roundedSeconds > 10) {
+    if (roundedSeconds <= 0 || roundedSeconds > getSettings().countdownSeconds) {
       lastCountdownVibrationKeyRef.current = null
       return
     }
@@ -235,7 +235,12 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
 
         <div className="rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.12),_rgba(9,9,11,0.96)_62%)] px-4 py-6 shadow-2xl shadow-black/30">
           <div className="flex justify-center">
-            <ProgressRing progress={phaseProgress} phase={phase} label={`${PHASE_LABELS[phase]} phase progress ${Math.round(phaseProgress * 100)} percent`}>
+            <ProgressRing
+              progress={phaseProgress}
+              phase={phase}
+              label={`${primaryLabel} — ${PHASE_LABELS[phase]} phase, ${Math.round(phaseProgress * 100)} percent complete`}
+              onClick={phase !== 'complete' ? handlePrimaryAction : undefined}
+            >
               <TimerDisplay
                 phase={phase}
                 remaining={remaining}
