@@ -52,7 +52,7 @@ export default function ProgressRing({
         />
       </svg>
 
-      <div className="absolute inset-7 rounded-full border border-white/5 bg-zinc-950/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+      <div className="absolute inset-8 rounded-full border border-white/5 bg-zinc-950/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
         <div className="flex h-full items-center justify-center">{children}</div>
       </div>
     </>
