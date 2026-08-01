@@ -13,5 +13,12 @@ npm run dev
 npm run build
 ```
 
-## Deploy
-Push to `main` — GitHub Actions builds and deploys to GitHub Pages automatically.
+## Deploy to GitHub Pages
+This repository includes `.github/workflows/deploy.yml`, which builds and deploys the app automatically when you push to `main`.
+
+Before the first release:
+1. Push the repository to GitHub.
+2. In **Settings → Pages**, set **Source** to **GitHub Actions**.
+3. Push to `main` or run the workflow manually from the **Actions** tab.
+
+The Vite base path is resolved automatically in GitHub Actions, so the same build setup works even if the repository name changes.
