@@ -76,7 +76,7 @@ export default function WorkoutEditPage() {
   }
 
   return (
-    <div className="bg-zinc-900 min-h-screen pb-32">
+    <div className="bg-zinc-900 min-h-screen">
       {/* Header */}
       <div className="sticky top-0 bg-zinc-900 border-b border-zinc-700 px-4 py-4 z-20">
         <h1 className="text-xl font-bold text-white">
@@ -193,7 +193,7 @@ export default function WorkoutEditPage() {
       </div>
 
       {/* Action buttons */}
-      <div className="fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-zinc-700 p-4 flex gap-3 safe-area-inset-bottom">
+      <div className="sticky bottom-0 left-0 right-0 z-20 flex gap-3 border-t border-zinc-700 bg-zinc-900 px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
         <button
           onClick={() => navigate('/')}
           className="flex-1 px-4 py-3 rounded-lg bg-zinc-800 text-white font-medium hover:bg-zinc-700 active:bg-zinc-600 transition-colors"

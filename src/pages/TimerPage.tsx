@@ -5,6 +5,7 @@ import ProgressRing from '../components/ProgressRing'
 import TimerDisplay from '../components/TimerDisplay'
 import { useAudio, type AudioPhase } from '../hooks/useAudio'
 import { useTimer } from '../hooks/useTimer'
+import { useScreenWakeLock } from '../hooks/useScreenWakeLock'
 import { getSettings } from '../store/settingsStore'
 import { getWorkouts } from '../store/workoutStore'
 import type { TimerPhase, WorkoutConfig } from '../types'
@@ -30,7 +31,7 @@ export default function TimerPage() {
   if (!workout) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-4 text-white">
-        <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-zinc-900/90 p-6 text-center shadow-2xl">
+        <div className="w-full rounded-3xl border border-white/10 bg-zinc-900/90 p-6 text-center shadow-2xl">
           <h1 className="text-2xl font-semibold">Workout not found</h1>
           <p className="mt-2 text-sm text-zinc-400">Pick a saved workout to start the timer.</p>
           <button
@@ -59,6 +60,8 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
   const previousPhaseRef = useRef<AudioPhase | null>(null)
   const autostartWorkoutIdRef = useRef<string | null>(null)
   const lastCountdownVibrationKeyRef = useRef<string | null>(null)
+
+  useScreenWakeLock(isRunning)
 
   const phaseDuration = getPhaseDuration(workout, phase)
   const phaseProgress = getPhaseProgress(phaseDuration, remaining, phase)
@@ -135,13 +138,13 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
     triggerVibration(25)
   }, [isRunning, phase, playCountdownBeep, remaining, triggerVibration])
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     previousPhaseRef.current = null
     lastCountdownVibrationKeyRef.current = null
     reset()
-  }
+  }, [reset])
 
-  const handlePrimaryAction = () => {
+  const handlePrimaryAction = useCallback(() => {
     if (phase === 'complete') {
       handleReset()
       return
@@ -158,7 +161,7 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
     }
 
     start()
-  }
+  }, [handleReset, isPaused, isRunning, phase, resume, start])
 
   const primaryLabel = phase === 'complete' ? 'Start again' : isRunning ? 'Pause' : isPaused ? 'Resume' : 'Start'
   const primaryClasses =
@@ -168,9 +171,55 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
         ? 'bg-amber-500 hover:bg-amber-400'
         : 'bg-blue-600 hover:bg-blue-500'
 
+  useEffect(() => {
+    const isTypingField = (target: EventTarget | null): boolean => {
+      if (!(target instanceof HTMLElement)) {
+        return false
+      }
+
+      return (
+        target.isContentEditable ||
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.tagName === 'SELECT' ||
+        target.tagName === 'BUTTON' ||
+        target.tagName === 'A'
+      )
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented || event.repeat || isTypingField(event.target)) {
+        return
+      }
+
+      if (event.code === 'Space') {
+        event.preventDefault()
+        handlePrimaryAction()
+        return
+      }
+
+      if (event.key.toLowerCase() === 'r') {
+        event.preventDefault()
+        handleReset()
+        return
+      }
+
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        onExit()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [handlePrimaryAction, handleReset, onExit])
+
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
-      <div className="mx-auto flex min-h-screen w-full max-w-md flex-col px-4 pb-6 pt-4">
+      <div className="flex min-h-screen w-full flex-col px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-[calc(1rem+env(safe-area-inset-top))] sm:px-6 lg:px-8">
         <div className="mb-6 flex items-center justify-between">
           <button
             onClick={onExit}
@@ -281,6 +330,9 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
               Reset
             </button>
           </div>
+          <p className="mt-4 text-center text-xs uppercase tracking-[0.24em] text-zinc-500">
+            Space to start or pause · R to reset · Esc to exit
+          </p>
         </div>
       </div>
     </div>

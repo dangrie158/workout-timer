@@ -18,7 +18,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-zinc-900 text-white">
-      <div className="mx-auto w-full max-w-md p-4 pb-6">
+      <div className="w-full px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-[calc(1rem+env(safe-area-inset-top))] sm:px-6 lg:px-8">
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
             <h1 className="mb-1 text-3xl font-bold">Workouts</h1>

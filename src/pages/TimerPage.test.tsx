@@ -6,6 +6,8 @@ import type { WorkoutConfig } from '../types'
 
 const playCountdownBeep = vi.fn()
 const playPhaseTransition = vi.fn()
+const wakeLockRelease = vi.fn().mockResolvedValue(undefined)
+const wakeLockRequest = vi.fn().mockResolvedValue({ release: wakeLockRelease })
 
 vi.mock('../hooks/useAudio', () => ({
   useAudio: () => ({
@@ -62,10 +64,20 @@ describe('TimerPage', () => {
     localStorage.clear()
     playCountdownBeep.mockReset()
     playPhaseTransition.mockReset()
+    wakeLockRelease.mockClear()
+    wakeLockRequest.mockClear()
+    Object.defineProperty(window.navigator, 'wakeLock', {
+      value: { request: wakeLockRequest },
+      configurable: true,
+    })
   })
 
   afterEach(() => {
     vi.useRealTimers()
+    Object.defineProperty(window.navigator, 'wakeLock', {
+      value: undefined,
+      configurable: true,
+    })
   })
 
   it('supports starting, pausing, resuming, and completing a workout', () => {
@@ -144,5 +156,26 @@ describe('TimerPage', () => {
     expect(screen.getAllByText('Cycle Rest').length).toBeGreaterThan(0)
     expect(playPhaseTransition).toHaveBeenCalledWith('work', 'restBetweenCycles')
     expect(playCountdownBeep).toHaveBeenCalledWith('restBetweenCycles', 1)
+  })
+
+  it('supports keyboard shortcuts and manages the screen wake lock', async () => {
+    localStorage.setItem('workouts', JSON.stringify([countdownWorkout]))
+    renderTimerPage()
+
+    fireEvent.keyDown(window, { code: 'Space', key: ' ' })
+
+    expect(screen.getByRole('button', { name: 'Pause' })).toBeInTheDocument()
+    expect(wakeLockRequest).toHaveBeenCalledTimes(1)
+
+    fireEvent.keyDown(window, { code: 'KeyR', key: 'r' })
+
+    expect(screen.getByText('Ready to start')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Start' })).toBeInTheDocument()
+
+    await act(async () => {
+      await Promise.resolve()
+    })
+
+    expect(wakeLockRelease).toHaveBeenCalledTimes(1)
   })
 })

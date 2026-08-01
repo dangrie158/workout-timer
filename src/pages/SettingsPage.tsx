@@ -88,7 +88,7 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
-      <div className="mx-auto flex min-h-screen w-full max-w-md flex-col px-4 pb-8 pt-4">
+      <div className="flex min-h-screen w-full flex-col px-4 pb-[calc(2rem+env(safe-area-inset-bottom))] pt-[calc(1rem+env(safe-area-inset-top))] sm:px-6 lg:px-8">
         <div className="mb-6 flex items-center justify-between">
           <button
             onClick={() => navigate('/')}
