@@ -4,6 +4,7 @@ import { getPhaseAtTime, calculateTotalDuration } from '../utils/timerSequence';
 import type { Phase } from '../utils/timerSequence';
 
 export interface UseTimerReturn {
+  elapsed: number;
   remaining: number;
   phase: Phase;
   round: number;
@@ -18,13 +19,16 @@ export interface UseTimerReturn {
 }
 
 export function useTimer(config: WorkoutConfig): UseTimerReturn {
+  const initialPhase = getPhaseAtTime(config, 0);
+
   // State management
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [phase, setPhase] = useState<Phase>('prepare');
-  const [round, setRound] = useState(1);
-  const [cycle, setCycle] = useState(1);
-  const [remaining, setRemaining] = useState(config.prepare);
+  const [phase, setPhase] = useState<Phase>(initialPhase.phase);
+  const [round, setRound] = useState(initialPhase.round);
+  const [cycle, setCycle] = useState(initialPhase.cycle);
+  const [remaining, setRemaining] = useState(initialPhase.remaining);
+  const [elapsed, setElapsed] = useState(0);
 
   // Refs for wall-clock time tracking (NOT affected by React re-renders)
   const startTimeRef = useRef<number | null>(null);
@@ -54,6 +58,7 @@ export function useTimer(config: WorkoutConfig): UseTimerReturn {
     const updateTimer = () => {
       const elapsedSeconds = getElapsedSeconds();
       const phaseInfo = getPhaseAtTime(config, elapsedSeconds);
+      setElapsed(Math.min(totalDuration, elapsedSeconds));
 
       setPhase(phaseInfo.phase);
       setCycle(phaseInfo.cycle);
@@ -77,30 +82,42 @@ export function useTimer(config: WorkoutConfig): UseTimerReturn {
         clearInterval(intervalRef.current);
       }
     };
-  }, [isRunning, config, getElapsedSeconds]);
+  }, [config, getElapsedSeconds, isRunning, totalDuration]);
 
   const start = useCallback(() => {
     if (isRunning) return;
 
+    const nextPhase = getPhaseAtTime(config, 0);
     startTimeRef.current = Date.now();
     pausedElapsedRef.current = 0;
     pauseTimeRef.current = null;
 
+    setElapsed(0);
+    setPhase(nextPhase.phase);
+    setCycle(nextPhase.cycle);
+    setRound(nextPhase.round);
+    setRemaining(nextPhase.remaining);
     setIsRunning(true);
     setIsPaused(false);
-  }, [isRunning]);
+  }, [config, isRunning]);
 
   const pause = useCallback(() => {
     if (!isRunning || isPaused) return;
 
     const elapsedSeconds = getElapsedSeconds();
+    const phaseInfo = getPhaseAtTime(config, elapsedSeconds);
     pausedElapsedRef.current = elapsedSeconds;
     pauseTimeRef.current = Date.now();
     startTimeRef.current = null;
 
+    setElapsed(Math.min(totalDuration, elapsedSeconds));
+    setPhase(phaseInfo.phase);
+    setCycle(phaseInfo.cycle);
+    setRound(phaseInfo.round);
+    setRemaining(Math.max(0, phaseInfo.remaining));
     setIsRunning(false);
     setIsPaused(true);
-  }, [isRunning, isPaused, getElapsedSeconds]);
+  }, [config, getElapsedSeconds, isPaused, isRunning, totalDuration]);
 
   const resume = useCallback(() => {
     if (isRunning || !isPaused) return;
@@ -124,15 +141,18 @@ export function useTimer(config: WorkoutConfig): UseTimerReturn {
     pausedElapsedRef.current = 0;
     pauseTimeRef.current = null;
 
+    const nextPhase = getPhaseAtTime(config, 0);
+    setElapsed(0);
     setIsRunning(false);
     setIsPaused(false);
-    setPhase('prepare');
-    setRound(1);
-    setCycle(1);
-    setRemaining(config.prepare);
-  }, [config.prepare]);
+    setPhase(nextPhase.phase);
+    setRound(nextPhase.round);
+    setCycle(nextPhase.cycle);
+    setRemaining(nextPhase.remaining);
+  }, [config]);
 
   return {
+    elapsed,
     remaining,
     phase,
     round,

@@ -85,7 +85,8 @@ function getAudioContextConstructor(): typeof AudioContext | undefined {
     return undefined
   }
 
-  const audioWindow = window as Window & {
+  const audioWindow = window as typeof window & {
+    AudioContext?: typeof AudioContext
     webkitAudioContext?: typeof AudioContext
   }
 

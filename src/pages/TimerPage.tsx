@@ -1,3 +1,224 @@
+import { useEffect, useMemo, useRef } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import PhaseBlock from '../components/PhaseBlock'
+import ProgressRing from '../components/ProgressRing'
+import TimerDisplay from '../components/TimerDisplay'
+import { useAudio, type AudioPhase } from '../hooks/useAudio'
+import { useTimer } from '../hooks/useTimer'
+import { getWorkouts } from '../store/workoutStore'
+import type { TimerPhase, WorkoutConfig } from '../types'
+import { PHASE_COLORS, PHASE_LABELS, formatCompactDuration, getPhaseDuration } from '../utils/timerUi'
+
+function getPhaseProgress(duration: number, remaining: number, phase: TimerPhase): number {
+  if (phase === 'complete') {
+    return 1
+  }
+
+  if (duration <= 0) {
+    return 1
+  }
+
+  return Math.min(1, Math.max(0, (duration - remaining) / duration))
+}
+
 export default function TimerPage() {
-  return <div className="p-4 text-white bg-zinc-900 min-h-screen">Timer</div>
+  const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+  const workout = useMemo(() => getWorkouts().find((entry) => entry.id === id), [id])
+
+  if (!workout) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-4 text-white">
+        <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-zinc-900/90 p-6 text-center shadow-2xl">
+          <h1 className="text-2xl font-semibold">Workout not found</h1>
+          <p className="mt-2 text-sm text-zinc-400">Pick a saved workout to start the timer.</p>
+          <button
+            onClick={() => navigate('/')}
+            className="mt-6 w-full rounded-2xl bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-500"
+          >
+            Back to workouts
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return <TimerExperience onExit={() => navigate('/')} workout={workout} />
+}
+
+interface TimerExperienceProps {
+  workout: WorkoutConfig
+  onExit: () => void
+}
+
+function TimerExperience({ workout, onExit }: TimerExperienceProps) {
+  const { playCountdownBeep, playPhaseTransition } = useAudio()
+  const { elapsed, remaining, phase, round, cycle, isPaused, isRunning, totalDuration, start, pause, resume, reset } =
+    useTimer(workout)
+  const previousPhaseRef = useRef<AudioPhase | null>(null)
+
+  const phaseDuration = getPhaseDuration(workout, phase)
+  const phaseProgress = getPhaseProgress(phaseDuration, remaining, phase)
+  const overallProgress = phase === 'complete' || totalDuration === 0 ? 1 : Math.min(elapsed / totalDuration, 1)
+  const accent = PHASE_COLORS[phase]
+  const canReset = isRunning || isPaused || phase === 'complete' || elapsed > 0
+
+  useEffect(() => {
+    if (!isRunning && phase !== 'complete') {
+      return
+    }
+
+    playPhaseTransition(previousPhaseRef.current, phase)
+    previousPhaseRef.current = phase === 'complete' ? null : phase
+  }, [isRunning, phase, playPhaseTransition])
+
+  useEffect(() => {
+    if (!isRunning || phase === 'complete') {
+      return
+    }
+
+    playCountdownBeep(phase as AudioPhase, remaining)
+  }, [isRunning, phase, playCountdownBeep, remaining])
+
+  const handleReset = () => {
+    previousPhaseRef.current = null
+    reset()
+  }
+
+  const handlePrimaryAction = () => {
+    if (phase === 'complete') {
+      handleReset()
+      return
+    }
+
+    if (isRunning) {
+      pause()
+      return
+    }
+
+    if (isPaused) {
+      resume()
+      return
+    }
+
+    start()
+  }
+
+  const primaryLabel = phase === 'complete' ? 'Start again' : isRunning ? 'Pause' : isPaused ? 'Resume' : 'Start'
+  const primaryClasses =
+    phase === 'complete'
+      ? 'bg-emerald-500 hover:bg-emerald-400'
+      : isRunning
+        ? 'bg-amber-500 hover:bg-amber-400'
+        : 'bg-blue-600 hover:bg-blue-500'
+
+  return (
+    <div className="min-h-screen bg-zinc-950 text-white">
+      <div className="mx-auto flex min-h-screen w-full max-w-md flex-col px-4 pb-6 pt-4">
+        <div className="mb-6 flex items-center justify-between">
+          <button
+            onClick={onExit}
+            className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/10"
+          >
+            ← Workouts
+          </button>
+          <div className="text-right">
+            <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">Timer</p>
+            <h1 className="text-lg font-semibold text-white">{workout.name}</h1>
+          </div>
+        </div>
+
+        <div className="rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.12),_rgba(9,9,11,0.96)_62%)] px-4 py-6 shadow-2xl shadow-black/30">
+          <div className="flex justify-center">
+            <ProgressRing progress={overallProgress} phase={phase} label={`${PHASE_LABELS[phase]} progress ${Math.round(overallProgress * 100)} percent`}>
+              <TimerDisplay
+                phase={phase}
+                remaining={remaining}
+                totalDuration={totalDuration}
+                isRunning={isRunning}
+                isPaused={isPaused}
+              />
+            </ProgressRing>
+          </div>
+
+          <div className="mt-5 h-2 overflow-hidden rounded-full bg-zinc-800">
+            <div
+              className="h-full rounded-full transition-all duration-700 ease-out"
+              style={{ width: `${Math.max(phaseProgress * 100, phase === 'complete' ? 100 : 0)}%`, backgroundColor: accent }}
+            />
+          </div>
+          <div className="mt-2 flex items-center justify-between text-xs uppercase tracking-[0.24em] text-zinc-500">
+            <span>{PHASE_LABELS[phase]}</span>
+            <span>{Math.round(phaseProgress * 100)}% of phase</span>
+          </div>
+        </div>
+
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          <PhaseBlock
+            label="Current phase"
+            value={PHASE_LABELS[phase]}
+            detail={phase === 'complete' ? 'All intervals finished' : `${formatCompactDuration(remaining)} left`}
+            accent={accent}
+            isActive
+          />
+          <PhaseBlock
+            label="Round"
+            value={`${Math.min(round, workout.rounds)} / ${workout.rounds}`}
+            detail={phase === 'restBetweenCycles' ? 'Last round complete' : 'Current round'}
+            accent={PHASE_COLORS.work}
+          />
+          <PhaseBlock
+            label="Cycle"
+            value={`${Math.min(cycle, workout.cycles)} / ${workout.cycles}`}
+            detail={phase === 'restBetweenCycles' ? 'Between cycles' : 'Current cycle'}
+            accent={PHASE_COLORS.cooldown}
+          />
+          <PhaseBlock
+            label="Elapsed"
+            value={formatCompactDuration(elapsed)}
+            detail={`of ${formatCompactDuration(totalDuration)}`}
+            accent={PHASE_COLORS.prepare}
+          />
+        </div>
+
+        <div className="mt-4 rounded-3xl border border-white/5 bg-zinc-900/80 p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.24em] text-zinc-500">Workout structure</h2>
+            <span className="text-sm text-zinc-400">{workout.rounds} rounds × {workout.cycles} cycles</span>
+          </div>
+          <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+            <PhaseBlock label="Prepare" value={formatCompactDuration(workout.prepare)} accent={PHASE_COLORS.prepare} isActive={phase === 'prepare'} />
+            <PhaseBlock label="Work" value={formatCompactDuration(workout.work)} accent={PHASE_COLORS.work} isActive={phase === 'work'} />
+            <PhaseBlock label="Rest" value={formatCompactDuration(workout.rest)} accent={PHASE_COLORS.rest} isActive={phase === 'rest' || phase === 'restBetweenCycles'} detail={workout.cycles > 1 ? `Cycle rest ${formatCompactDuration(workout.restBetweenCycles)}` : undefined} />
+            <PhaseBlock label="Cooldown" value={formatCompactDuration(workout.cooldown)} accent={PHASE_COLORS.cooldown} isActive={phase === 'cooldown'} />
+          </div>
+        </div>
+
+        <div className="mt-auto pt-6">
+          {phase === 'complete' ? (
+            <div className="mb-4 rounded-3xl border border-emerald-400/20 bg-emerald-500/10 p-4 text-center">
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-emerald-300">Complete</p>
+              <p className="mt-2 text-sm text-emerald-100/80">Nice work — your session is done.</p>
+            </div>
+          ) : null}
+
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={handlePrimaryAction}
+              className={`rounded-2xl px-4 py-4 text-base font-semibold text-white transition active:scale-[0.99] ${primaryClasses}`}
+            >
+              {primaryLabel}
+            </button>
+            <button
+              onClick={handleReset}
+              disabled={!canReset}
+              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-base font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Reset
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
