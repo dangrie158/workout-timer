@@ -49,6 +49,7 @@ describe('SettingsPage', () => {
       soundEnabled: false,
       vibrationEnabled: true,
       autostart: true,
+      countdownSeconds: 10,
     })
   })
 })

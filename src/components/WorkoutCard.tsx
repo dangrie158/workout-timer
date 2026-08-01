@@ -68,7 +68,7 @@ export default function WorkoutCard({ workout, onDelete }: WorkoutCardProps) {
   }
 
   return (
-    <div className="mb-4 rounded-[2rem] border border-white/10 bg-zinc-900/80 shadow-xl shadow-black/25">
+    <div className="rounded-[2rem] border border-white/10 bg-zinc-900/80 shadow-xl shadow-black/25">
       <div className="flex items-start justify-between p-5 pb-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-zinc-500">Workout</p>

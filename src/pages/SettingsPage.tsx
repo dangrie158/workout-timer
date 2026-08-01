@@ -107,6 +107,11 @@ function CountdownRow({ value, onChange }: CountdownRowProps) {
         <span className="mt-1 shrink-0 rounded-2xl border border-white/10 bg-white/5 px-3 py-1 text-base font-semibold tabular-nums text-white">
           {value}s
         </span>
+        <span className="mt-2 shrink-0 text-zinc-500" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m9 18 6-6-6-6" />
+          </svg>
+        </span>
       </button>
 
       <NumberPicker
@@ -152,15 +157,7 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.18),_rgba(9,9,11,0.96)_62%)] p-5 shadow-2xl shadow-black/30">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-blue-300">Saved on this device</p>
-          <h2 className="mt-3 text-2xl font-semibold text-white">Tune your timer experience</h2>
-          <p className="mt-3 text-sm leading-6 text-zinc-300">
-            Changes apply instantly and stay available the next time you open Workout Timer.
-          </p>
-        </div>
-
-        <div className="mt-6 space-y-5">
+        <div className="space-y-5">
           {preferenceSections.map((section) => (
             <section
               key={section.heading}
@@ -188,8 +185,8 @@ export default function SettingsPage() {
           ))}
         </div>
 
-        <div className="mt-auto pt-6 text-center text-xs uppercase tracking-[0.24em] text-zinc-600">
-          Sound, vibration, and autostart are ready for your next session.
+        <div className="mt-auto pt-6 text-center">
+          <p className="text-xs uppercase tracking-[0.24em] text-zinc-600">Stored locally for your next workout</p>
         </div>
       </div>
     </div>
