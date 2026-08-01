@@ -124,7 +124,7 @@ export default function WorkoutCard({ workout, onDelete }: WorkoutCardProps) {
         <StatCell label="Cooldown" value={formatCompactDuration(workout.cooldown)} accent={PHASE_COLORS.cooldown} />
       </div>
 
-      <div className="mx-5 mt-3 flex items-center gap-3 rounded-2xl border border-white/5 bg-zinc-950/40 px-4 py-3">
+      <div className="mx-5 mt-4 mb-5 flex items-center gap-3 rounded-2xl border border-white/5 bg-zinc-950/40 px-4 py-3">
         <div className="flex flex-1 flex-col items-center">
           <span className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">Rounds</span>
           <span className="text-sm font-bold text-white">{workout.rounds}</span>

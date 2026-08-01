@@ -54,7 +54,7 @@ export default function HomePage() {
         </div>
 
         {workouts.length === 0 ? (
-          <div className="rounded-[2rem] border border-white/8 bg-zinc-900/70 p-6 text-center shadow-xl shadow-black/20">
+          <div className="rounded-[2rem] border border-white/10 bg-zinc-900/80 p-6 text-center shadow-xl shadow-black/25">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/5 text-zinc-300">
               <PlusIcon />
             </div>
