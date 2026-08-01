@@ -117,7 +117,7 @@ export default function WorkoutCard({ workout, onDelete }: WorkoutCardProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-2 px-5">
+      <div className="grid grid-cols-2 gap-2 px-5 sm:grid-cols-4">
         <StatCell label="Prepare" value={formatCompactDuration(workout.prepare)} accent={PHASE_COLORS.prepare} />
         <StatCell label="Work" value={formatCompactDuration(workout.work)} accent={PHASE_COLORS.work} />
         <StatCell label="Rest" value={formatCompactDuration(workout.rest)} accent={PHASE_COLORS.rest} />
