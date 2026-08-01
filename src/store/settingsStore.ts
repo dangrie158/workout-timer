@@ -1,4 +1,4 @@
-import { GlobalSettings } from '../types/workout';
+import type { GlobalSettings } from '../types/workout';
 
 const SETTINGS_KEY = 'settings';
 

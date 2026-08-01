@@ -12,14 +12,7 @@ export interface WorkoutConfig {
   updatedAt: number;
 }
 
-export enum TimerPhase {
-  PREPARE = 'prepare',
-  WORK = 'work',
-  REST = 'rest',
-  REST_BETWEEN_CYCLES = 'restBetweenCycles',
-  COOLDOWN = 'cooldown',
-  COMPLETE = 'complete',
-}
+export type TimerPhase = 'prepare' | 'work' | 'rest' | 'restBetweenCycles' | 'cooldown' | 'complete';
 
 export interface TimerState {
   phase: TimerPhase;

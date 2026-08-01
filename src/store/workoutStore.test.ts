@@ -5,7 +5,7 @@ import {
   updateWorkout,
   deleteWorkout,
 } from './workoutStore';
-import { WorkoutConfig } from '../types/workout';
+import type { WorkoutConfig } from '../types/workout';
 
 describe('WorkoutStore', () => {
   beforeEach(() => {

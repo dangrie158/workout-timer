@@ -1,23 +1,23 @@
 import '@testing-library/jest-dom'
 
-// Ensure localStorage is available in jsdom
-if (!global.localStorage) {
-  const storage: Record<string, string> = {};
-  global.localStorage = {
-    getItem: (key: string) => storage[key] || null,
+const storage = new Map<string, string>()
+
+Object.defineProperty(globalThis, 'localStorage', {
+  value: {
+    getItem: (key: string) => storage.get(key) ?? null,
     setItem: (key: string, value: string) => {
-      storage[key] = value;
+      storage.set(key, value)
     },
     removeItem: (key: string) => {
-      delete storage[key];
+      storage.delete(key)
     },
     clear: () => {
-      for (const key in storage) {
-        delete storage[key];
-      }
+      storage.clear()
     },
-    key: (index: number) => Object.keys(storage)[index] || null,
-    length: Object.keys(storage).length,
-  } as Storage;
-}
-
+    key: (index: number) => Array.from(storage.keys())[index] ?? null,
+    get length() {
+      return storage.size
+    },
+  } satisfies Storage,
+  configurable: true,
+})

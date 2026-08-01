@@ -1,4 +1,4 @@
-import { WorkoutConfig } from '../types/workout';
+import type { WorkoutConfig } from '../types/workout'
 
 const STORAGE_KEY = 'workouts';
 

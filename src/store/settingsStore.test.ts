@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { getSettings, saveSettings } from './settingsStore';
-import { GlobalSettings } from '../types/workout';
+import type { GlobalSettings } from '../types/workout';
 
 describe('SettingsStore', () => {
   beforeEach(() => {
