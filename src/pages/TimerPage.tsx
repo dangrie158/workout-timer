@@ -4,7 +4,6 @@ import PhaseBlock from "../components/PhaseBlock";
 import ProgressRing from "../components/ProgressRing";
 import TimerDisplay from "../components/TimerDisplay";
 import { useAudio, type AudioPhase } from "../hooks/useAudio";
-import { useKeepScreenAwake } from "../hooks/useKeepScreenAwake";
 import { useTimer } from "../hooks/useTimer";
 import { useScreenWakeLock } from "../hooks/useScreenWakeLock";
 import { getSettings } from "../store/settingsStore";
@@ -133,11 +132,6 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
   const lastCountdownVibrationKeyRef = useRef<string | null>(null);
 
   useScreenWakeLock(isRunning);
-
-  // iOS Safari auto-locks the screen when there's no active media session.
-  // This hook keeps a silent getUserMedia stream alive so Safari sees "media in progress"
-  // and won't auto-lock. Works on iOS (where Screen Wake Lock API is absent).
-  useKeepScreenAwake(isRunning && phase !== "complete");
 
   const phaseDuration = getPhaseDuration(workout, phase);
   const phaseProgress = getPhaseProgress(phaseDuration, remaining, phase);
