@@ -1,63 +1,97 @@
-import { useCallback, useEffect, useState } from 'react'
-import { useNavigate, useNavigation } from 'react-router-dom'
-import { getWorkouts } from '../store/workoutStore'
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { getWorkouts } from "../store/workoutStore";
 
-import WorkoutCard from '../components/WorkoutCard'
+import WorkoutCard from "../components/WorkoutCard";
 
 function SettingsIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <circle cx="12" cy="12" r="3" />
       <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l.06.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l.06.06a2 2 0 1 1-2.83-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82L4.21 7.2a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
     </svg>
-  )
+  );
 }
 
 function PlusIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <path d="M12 5v14M5 12h14" />
     </svg>
-  )
+  );
 }
 
 export default function HomePage() {
-  const navigate = useNavigate()
-  const navigation = useNavigation()
+  const navigate = useNavigate();
+  const [, setRefresh] = useState(0);
 
-  // Trigger re-render when navigating away and back (React Router changes key)
+  // Re-render when coming back from another route (React Router re-mounts the component,
+  // but bfcache restore on Safari iOS keeps the old instance — this catches that)
   useEffect(() => {
-    // reading navigation.key here forces a re-render whenever it changes
-    void navigation.key
-  }, [navigation.key])
+    const handlePageshow = () => setRefresh((r) => r + 1);
+    window.addEventListener("pageshow", handlePageshow);
+    return () => window.removeEventListener("pageshow", handlePageshow);
+  }, []);
 
-  // Fallback for bfcache restore (Safari iOS): effect above is lost on discard
+  // Re-render when another tab modifies the store
   useEffect(() => {
-    const handlePageshow = () => navigate((p) => ({ ...p }), { replace: true })
-    window.addEventListener('pageshow', handlePageshow)
-    return () => window.removeEventListener('pageshow', handlePageshow)
-  }, [navigate])
+    const notify = () => setRefresh((r) => r + 1);
+    window.addEventListener("storage", notify);
+    const handleMessage = (e: MessageEvent) => {
+      if (e.data?.type === "__workouts_changed") notify();
+    };
+    window.addEventListener("message", handleMessage);
+    return () => {
+      window.removeEventListener("storage", notify);
+      window.removeEventListener("message", handleMessage);
+    };
+  }, []);
 
-  const workoutsList = getWorkouts()
+  const workoutsList = getWorkouts();
 
   const handleWorkoutDeleted = useCallback(() => {
-    // trigger re-render via navigation state change
-    navigate((p) => ({ ...p }), { replace: true })
-  }, [navigate])
+    setRefresh((r) => r + 1);
+  }, []);
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
       <div className="flex min-h-screen w-full flex-col px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-[calc(1rem+env(safe-area-inset-top))] sm:px-6 lg:px-8">
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">Workout Timer</p>
-            <h1 className="mt-1 text-lg font-semibold text-white">Your workouts</h1>
+            <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">
+              Workout Timer
+            </p>
+            <h1 className="mt-1 text-lg font-semibold text-white">
+              Your workouts
+            </h1>
             <p className="mt-2 text-sm text-zinc-500">
-              {workoutsList.length === 0 ? 'No workouts saved' : `${workoutsList.length} saved`}
+              {workoutsList.length === 0
+                ? "No workouts saved"
+                : `${workoutsList.length} saved`}
             </p>
           </div>
           <button
-            onClick={() => navigate('/settings')}
+            onClick={() => navigate("/settings")}
             className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/10"
           >
             <SettingsIcon />
@@ -70,10 +104,15 @@ export default function HomePage() {
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/5 text-zinc-300">
               <PlusIcon />
             </div>
-            <h2 className="mt-4 text-lg font-semibold text-white">No workouts yet</h2>
-            <p className="mt-2 text-sm leading-6 text-zinc-400">Create a routine to set up your prepare, work, rest, and cooldown intervals.</p>
+            <h2 className="mt-4 text-lg font-semibold text-white">
+              No workouts yet
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-zinc-400">
+              Create a routine to set up your prepare, work, rest, and cooldown
+              intervals.
+            </p>
             <button
-              onClick={() => navigate('/workout/new')}
+              onClick={() => navigate("/workout/new")}
               className="mt-5 inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-500 active:scale-[0.99]"
             >
               <PlusIcon />
@@ -83,7 +122,11 @@ export default function HomePage() {
         ) : (
           <div className="space-y-4">
             {workoutsList.map((workout) => (
-              <WorkoutCard key={workout.id} workout={workout} onDelete={handleWorkoutDeleted} />
+              <WorkoutCard
+                key={workout.id}
+                workout={workout}
+                onDelete={handleWorkoutDeleted}
+              />
             ))}
           </div>
         )}
@@ -91,7 +134,7 @@ export default function HomePage() {
         {workoutsList.length > 0 && (
           <div className="mt-auto pt-6">
             <button
-              onClick={() => navigate('/workout/new')}
+              onClick={() => navigate("/workout/new")}
               className="flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-500 active:scale-[0.99]"
             >
               <PlusIcon />
@@ -101,5 +144,5 @@ export default function HomePage() {
         )}
       </div>
     </div>
-  )
+  );
 }
