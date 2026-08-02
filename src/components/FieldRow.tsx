@@ -31,7 +31,7 @@ export default function FieldRow({
   min = 0,
   max = 3600,
   useDurationPicker = false,
-  maxMinutes: propMaxMins,
+  maxMinutes: propMaxMins
 }: FieldRowProps) {
   const [isPickerOpen, setIsPickerOpen] = useState(false)
   const accent = color ? PHASE_COLORS[color] : customAccent
@@ -39,14 +39,17 @@ export default function FieldRow({
   // Duration picker state
   const dMins = Math.floor(value / 60)
   const dSecs = value % 60
-  const maxMinutes = propMaxMins ?? (useDurationPicker ? Math.floor(max / 60) : undefined)
+  const maxMinutes =
+    propMaxMins ?? (useDurationPicker ? Math.floor(max / 60) : undefined)
 
   // Default display: mm:ss with 2 digits when ≥60s, plain ss otherwise
   const durationDisplay = useMemo(() => {
     if (displayValue) return null
     const m = Math.floor(value / 60)
     const s = value % 60
-    return m > 0 ? `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}` : String(s)
+    return m > 0
+      ? `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+      : String(s)
   }, [value, displayValue])
 
   // Picker-modal display: always MM:SS (two wheels, so full format is clearer)
@@ -104,7 +107,9 @@ export default function FieldRow({
           title={label}
           totalSeconds={value}
           maxMinutes={maxMinutes ?? 60}
-          onMinsChange={(mins, secs) => handleDurationChange(String(mins), String(secs))}
+          onMinsChange={(mins, secs) =>
+            handleDurationChange(String(mins), String(secs))
+          }
           onClose={() => setIsPickerOpen(false)}
         />
       ) : (

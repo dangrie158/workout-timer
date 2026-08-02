@@ -25,16 +25,24 @@ describe('SettingsPage', () => {
       JSON.stringify({
         soundEnabled: false,
         vibrationEnabled: true,
-        autostart: true,
+        autostart: true
       })
     )
 
     renderSettingsPage()
 
-    expect(screen.getByRole('heading', { name: 'Global settings' })).toBeInTheDocument()
-    expect(screen.getByRole('checkbox', { name: 'Sound cues' })).not.toBeChecked()
-    expect(screen.getByRole('checkbox', { name: 'Vibration cues' })).toBeChecked()
-    expect(screen.getByRole('checkbox', { name: 'Autostart workout' })).toBeChecked()
+    expect(
+      screen.getByRole('heading', { name: 'Global settings' })
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('checkbox', { name: 'Sound cues' })
+    ).not.toBeChecked()
+    expect(
+      screen.getByRole('checkbox', { name: 'Vibration cues' })
+    ).toBeChecked()
+    expect(
+      screen.getByRole('checkbox', { name: 'Autostart workout' })
+    ).toBeChecked()
   })
 
   it('updates preferences and persists them immediately', () => {
@@ -43,13 +51,17 @@ describe('SettingsPage', () => {
     fireEvent.click(screen.getByRole('checkbox', { name: 'Sound cues' }))
     fireEvent.click(screen.getByRole('checkbox', { name: 'Autostart workout' }))
 
-    expect(screen.getByRole('checkbox', { name: 'Sound cues' })).not.toBeChecked()
-    expect(screen.getByRole('checkbox', { name: 'Autostart workout' })).toBeChecked()
+    expect(
+      screen.getByRole('checkbox', { name: 'Sound cues' })
+    ).not.toBeChecked()
+    expect(
+      screen.getByRole('checkbox', { name: 'Autostart workout' })
+    ).toBeChecked()
     expect(getSettings()).toEqual({
       soundEnabled: false,
       vibrationEnabled: true,
       autostart: true,
-      countdownSeconds: 10,
+      countdownSeconds: 10
     })
   })
 })

@@ -13,7 +13,7 @@ const config: WorkoutConfig = {
   restBetweenCycles: 7,
   cooldown: 3,
   createdAt: 0,
-  updatedAt: 0,
+  updatedAt: 0
 }
 
 describe('timerSequence', () => {

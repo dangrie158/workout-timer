@@ -16,8 +16,8 @@ vi.mock('../hooks/useAudio', () => ({
     playPhaseTransition,
     playWorkoutComplete: vi.fn(),
     playCountdownBeep,
-    primeAudioFromGesture: vi.fn(),
-  }),
+    primeAudioFromGesture: vi.fn()
+  })
 }))
 
 function renderTimerPage(id = 'timer-test') {
@@ -41,7 +41,7 @@ const countdownWorkout: WorkoutConfig = {
   restBetweenCycles: 0,
   cooldown: 0,
   createdAt: 0,
-  updatedAt: 0,
+  updatedAt: 0
 }
 
 const cycleRestWorkout: WorkoutConfig = {
@@ -55,7 +55,7 @@ const cycleRestWorkout: WorkoutConfig = {
   restBetweenCycles: 1,
   cooldown: 0,
   createdAt: 0,
-  updatedAt: 0,
+  updatedAt: 0
 }
 
 describe('TimerPage', () => {
@@ -69,7 +69,7 @@ describe('TimerPage', () => {
     wakeLockRequest.mockClear()
     Object.defineProperty(window.navigator, 'wakeLock', {
       value: { request: wakeLockRequest },
-      configurable: true,
+      configurable: true
     })
   })
 
@@ -77,7 +77,7 @@ describe('TimerPage', () => {
     vi.useRealTimers()
     Object.defineProperty(window.navigator, 'wakeLock', {
       value: undefined,
-      configurable: true,
+      configurable: true
     })
   })
 
@@ -124,7 +124,9 @@ describe('TimerPage', () => {
     })
 
     expect(screen.getByText('Workout complete')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Start again' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Start again' })
+    ).toBeInTheDocument()
     expect(playPhaseTransition).toHaveBeenCalledWith('work', 'complete')
   })
 
@@ -132,7 +134,11 @@ describe('TimerPage', () => {
     localStorage.setItem('workouts', JSON.stringify([countdownWorkout]))
     localStorage.setItem(
       'settings',
-      JSON.stringify({ soundEnabled: true, vibrationEnabled: true, autostart: true })
+      JSON.stringify({
+        soundEnabled: true,
+        vibrationEnabled: true,
+        autostart: true
+      })
     )
 
     renderTimerPage()
@@ -155,7 +161,10 @@ describe('TimerPage', () => {
     })
 
     expect(screen.getAllByText('Cycle Rest').length).toBeGreaterThan(0)
-    expect(playPhaseTransition).toHaveBeenCalledWith('work', 'restBetweenCycles')
+    expect(playPhaseTransition).toHaveBeenCalledWith(
+      'work',
+      'restBetweenCycles'
+    )
     expect(playCountdownBeep).toHaveBeenCalledWith('restBetweenCycles', 1)
   })
 

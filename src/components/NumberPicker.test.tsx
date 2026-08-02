@@ -12,7 +12,15 @@ describe('NumberPicker', () => {
     const onClose = vi.fn()
 
     render(
-      <NumberPicker isOpen title="Prepare" value={30} onChange={onChange} onClose={onClose} min={0} max={60} />
+      <NumberPicker
+        isOpen
+        title="Prepare"
+        value={30}
+        onChange={onChange}
+        onClose={onClose}
+        min={0}
+        max={60}
+      />
     )
 
     await act(async () => {
@@ -25,8 +33,8 @@ describe('NumberPicker', () => {
     act(() => {
       fireEvent.scroll(listbox, {
         target: {
-          scrollTop: (61 + 41) * 48,
-        },
+          scrollTop: (61 + 41) * 48
+        }
       })
     })
 

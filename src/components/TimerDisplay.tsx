@@ -9,7 +9,11 @@ interface TimerDisplayProps {
   isPaused: boolean
 }
 
-function getStatusText(phase: TimerPhase, isRunning: boolean, isPaused: boolean): string {
+function getStatusText(
+  phase: TimerPhase,
+  isRunning: boolean,
+  isPaused: boolean
+): string {
   if (phase === 'complete') {
     return 'Workout complete'
   }
@@ -46,7 +50,7 @@ export default function TimerDisplay({
   remaining,
   totalDuration,
   isRunning,
-  isPaused,
+  isPaused
 }: TimerDisplayProps) {
   const highlight = PHASE_COLORS[phase]
 
@@ -62,8 +66,12 @@ export default function TimerDisplay({
       </div>
 
       <div className="flex flex-1 flex-col items-center justify-center">
-        <div className="text-6xl font-semibold tracking-tight text-white sm:text-7xl">{formatClock(remaining)}</div>
-        <p className="mt-2 text-sm text-zinc-400">{getStatusText(phase, isRunning, isPaused)}</p>
+        <div className="text-6xl font-semibold tracking-tight text-white sm:text-7xl">
+          {formatClock(remaining)}
+        </div>
+        <p className="mt-2 text-sm text-zinc-400">
+          {getStatusText(phase, isRunning, isPaused)}
+        </p>
         <p className="mt-1 text-xs uppercase tracking-[0.25em] text-zinc-500">
           Total {formatClock(totalDuration)}
         </p>
@@ -74,18 +82,34 @@ export default function TimerDisplay({
           <div className="mt-2 flex items-center gap-1 text-white/20">
             {isRunning ? (
               <>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <svg
+                  width="10"
+                  height="10"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
                   <rect x="6" y="4" width="4" height="16" rx="1" />
                   <rect x="14" y="4" width="4" height="16" rx="1" />
                 </svg>
-                <span className="text-[0.6rem] uppercase tracking-[0.2em]">tap to pause</span>
+                <span className="text-[0.6rem] uppercase tracking-[0.2em]">
+                  tap to pause
+                </span>
               </>
             ) : (
               <>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <svg
+                  width="10"
+                  height="10"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
                   <polygon points="5 3 19 12 5 21 5 3" />
                 </svg>
-                <span className="text-[0.6rem] uppercase tracking-[0.2em]">{isPaused ? 'tap to resume' : 'tap to start'}</span>
+                <span className="text-[0.6rem] uppercase tracking-[0.2em]">
+                  {isPaused ? 'tap to resume' : 'tap to start'}
+                </span>
               </>
             )}
           </div>

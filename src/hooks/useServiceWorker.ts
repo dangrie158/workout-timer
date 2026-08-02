@@ -9,9 +9,12 @@ export function useServiceWorker() {
 
     const registerServiceWorker = async () => {
       try {
-        const registration = await navigator.serviceWorker.register('/service-worker.js', {
-          scope: '/',
-        })
+        const registration = await navigator.serviceWorker.register(
+          '/service-worker.js',
+          {
+            scope: '/'
+          }
+        )
 
         console.log('Service Worker registered successfully:', registration)
 
@@ -26,7 +29,10 @@ export function useServiceWorker() {
           if (!newWorker) return
 
           newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            if (
+              newWorker.state === 'installed' &&
+              navigator.serviceWorker.controller
+            ) {
               // New service worker is ready to take over
               console.log('New service worker available')
               // Notify user about update (optional: you could show a toast or banner)

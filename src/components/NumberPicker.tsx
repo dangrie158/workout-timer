@@ -21,7 +21,7 @@ export default function NumberPicker({
   onChange,
   onClose,
   min = 0,
-  max = 3600,
+  max = 3600
 }: NumberPickerProps) {
   const listRef = useRef<HTMLDivElement | null>(null)
   const [tempValue, setTempValue] = useState(value)
@@ -71,7 +71,8 @@ export default function NumberPicker({
     }
 
     const rawIndex = Math.round(list.scrollTop / ITEM_HEIGHT)
-    const normalizedIndex = ((rawIndex % values.length) + values.length) % values.length
+    const normalizedIndex =
+      ((rawIndex % values.length) + values.length) % values.length
     const nextValue = min + normalizedIndex
 
     setTempValue((current) => (current === nextValue ? current : nextValue))
@@ -95,7 +96,10 @@ export default function NumberPicker({
 
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity" onClick={onClose} />
+      <div
+        className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity"
+        onClick={onClose}
+      />
 
       <div
         role="dialog"
@@ -112,7 +116,9 @@ export default function NumberPicker({
             <h2 id={titleId} className="text-xl font-semibold text-white">
               {title}
             </h2>
-            <p className="mt-2 text-sm text-zinc-400">Scroll the wheel to choose a value.</p>
+            <p className="mt-2 text-sm text-zinc-400">
+              Scroll the wheel to choose a value.
+            </p>
           </div>
 
           <div className="relative">
@@ -130,7 +136,7 @@ export default function NumberPicker({
                 paddingTop: centerOffset,
                 paddingBottom: centerOffset,
                 scrollPaddingTop: centerOffset,
-                scrollPaddingBottom: centerOffset,
+                scrollPaddingBottom: centerOffset
               }}
             >
               {repeatedValues.map((item, index) => {
@@ -153,7 +159,9 @@ export default function NumberPicker({
           </div>
 
           <div className="mt-4 flex items-center justify-center gap-2 text-sm text-zinc-400">
-            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">{tempValue}s selected</span>
+            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">
+              {tempValue}s selected
+            </span>
           </div>
 
           <div className="mt-5 flex gap-3">

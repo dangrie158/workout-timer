@@ -6,7 +6,7 @@ export const PHASE_LABELS: Record<TimerPhase, string> = {
   rest: 'Rest',
   restBetweenCycles: 'Cycle Rest',
   cooldown: 'Cooldown',
-  complete: 'Complete',
+  complete: 'Complete'
 }
 
 export const PHASE_COLORS: Record<TimerPhase, string> = {
@@ -15,7 +15,7 @@ export const PHASE_COLORS: Record<TimerPhase, string> = {
   rest: '#FF3B30',
   restBetweenCycles: '#FF3B30',
   cooldown: '#4A90E2',
-  complete: '#34D399',
+  complete: '#34D399'
 }
 
 export function formatClock(totalSeconds: number): string {
@@ -42,7 +42,10 @@ export function formatCompactDuration(totalSeconds: number): string {
   return `${minutes}m ${remainder}s`
 }
 
-export function getPhaseDuration(config: WorkoutConfig, phase: TimerPhase): number {
+export function getPhaseDuration(
+  config: WorkoutConfig,
+  phase: TimerPhase
+): number {
   switch (phase) {
     case 'prepare':
       return config.prepare

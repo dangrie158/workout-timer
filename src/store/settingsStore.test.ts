@@ -1,5 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { DEFAULT_SETTINGS, getSettings, saveSettings, updateSettings } from './settingsStore'
+import {
+  DEFAULT_SETTINGS,
+  getSettings,
+  saveSettings,
+  updateSettings
+} from './settingsStore'
 import type { GlobalSettings } from '../types/workout'
 
 describe('SettingsStore', () => {
@@ -20,7 +25,7 @@ describe('SettingsStore', () => {
       soundEnabled: false,
       vibrationEnabled: false,
       autostart: true,
-      countdownSeconds: 10,
+      countdownSeconds: 10
     }
 
     saveSettings(newSettings)
@@ -33,7 +38,7 @@ describe('SettingsStore', () => {
       soundEnabled: false,
       vibrationEnabled: true,
       autostart: true,
-      countdownSeconds: 10,
+      countdownSeconds: 10
     }
 
     saveSettings(settings)
@@ -49,7 +54,7 @@ describe('SettingsStore', () => {
 
     expect(updated).toEqual({
       ...DEFAULT_SETTINGS,
-      autostart: true,
+      autostart: true
     })
     expect(getSettings()).toEqual(updated)
   })
@@ -59,7 +64,7 @@ describe('SettingsStore', () => {
 
     expect(getSettings()).toEqual({
       ...DEFAULT_SETTINGS,
-      soundEnabled: false,
+      soundEnabled: false
     })
   })
 })

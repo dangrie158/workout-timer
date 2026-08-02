@@ -15,14 +15,17 @@ const workout: WorkoutConfig = {
   restBetweenCycles: 60,
   cooldown: 30,
   createdAt: 1,
-  updatedAt: 1,
+  updatedAt: 1
 }
 
 function renderWorkoutCard(onDelete?: () => void) {
   return render(
     <MemoryRouter initialEntries={['/']}>
       <Routes>
-        <Route path="/" element={<WorkoutCard workout={workout} onDelete={onDelete} />} />
+        <Route
+          path="/"
+          element={<WorkoutCard workout={workout} onDelete={onDelete} />}
+        />
         <Route path="/workout/:id/timer" element={<div>Timer page</div>} />
         <Route path="/workout/:id/edit" element={<div>Edit page</div>} />
       </Routes>
@@ -39,7 +42,9 @@ describe('WorkoutCard', () => {
   it('opens the timer when the card is clicked', () => {
     renderWorkoutCard()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Open HIIT Blast workout' }))
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Open HIIT Blast workout' })
+    )
 
     expect(screen.getByText('Timer page')).toBeInTheDocument()
   })

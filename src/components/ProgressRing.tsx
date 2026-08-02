@@ -19,7 +19,7 @@ export default function ProgressRing({
   strokeWidth = 18,
   label,
   onClick,
-  children,
+  children
 }: ProgressRingProps) {
   const safeProgress = Math.min(1, Math.max(0, progress))
   const radius = (size - strokeWidth) / 2
@@ -28,7 +28,12 @@ export default function ProgressRing({
 
   const Inner = (
     <>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="drop-shadow-[0_0_24px_rgba(255,255,255,0.08)]">
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        className="drop-shadow-[0_0_24px_rgba(255,255,255,0.08)]"
+      >
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -53,7 +58,9 @@ export default function ProgressRing({
       </svg>
 
       <div className="absolute inset-8 rounded-full border border-white/5 bg-zinc-950/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
-        <div className="flex h-full items-center justify-center">{children}</div>
+        <div className="flex h-full items-center justify-center">
+          {children}
+        </div>
       </div>
     </>
   )
@@ -72,7 +79,10 @@ export default function ProgressRing({
   }
 
   return (
-    <div className="relative inline-flex items-center justify-center" aria-label={label}>
+    <div
+      className="relative inline-flex items-center justify-center"
+      aria-label={label}
+    >
       {Inner}
     </div>
   )

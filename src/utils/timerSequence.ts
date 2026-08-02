@@ -1,12 +1,7 @@
 import type { WorkoutConfig } from '../types/workout'
 
 export type Phase =
-  | 'prepare'
-  | 'work'
-  | 'rest'
-  | 'restBetweenCycles'
-  | 'cooldown'
-  | 'complete'
+  'prepare' | 'work' | 'rest' | 'restBetweenCycles' | 'cooldown' | 'complete'
 
 export interface PhaseInfo {
   phase: Phase
@@ -15,7 +10,10 @@ export interface PhaseInfo {
   remaining: number
 }
 
-export function getPhaseAtTime(config: WorkoutConfig, elapsedSeconds: number): PhaseInfo {
+export function getPhaseAtTime(
+  config: WorkoutConfig,
+  elapsedSeconds: number
+): PhaseInfo {
   let timeRemaining = elapsedSeconds
 
   if (timeRemaining < config.prepare) {
@@ -23,7 +21,7 @@ export function getPhaseAtTime(config: WorkoutConfig, elapsedSeconds: number): P
       phase: 'prepare',
       round: 1,
       cycle: 1,
-      remaining: config.prepare - timeRemaining,
+      remaining: config.prepare - timeRemaining
     }
   }
   timeRemaining -= config.prepare
@@ -35,7 +33,7 @@ export function getPhaseAtTime(config: WorkoutConfig, elapsedSeconds: number): P
           phase: 'work',
           round,
           cycle,
-          remaining: config.work - timeRemaining,
+          remaining: config.work - timeRemaining
         }
       }
       timeRemaining -= config.work
@@ -47,7 +45,7 @@ export function getPhaseAtTime(config: WorkoutConfig, elapsedSeconds: number): P
             phase: 'rest',
             round,
             cycle,
-            remaining: config.rest - timeRemaining,
+            remaining: config.rest - timeRemaining
           }
         }
         timeRemaining -= config.rest
@@ -61,7 +59,7 @@ export function getPhaseAtTime(config: WorkoutConfig, elapsedSeconds: number): P
           phase: 'restBetweenCycles',
           round: config.rounds,
           cycle,
-          remaining: config.restBetweenCycles - timeRemaining,
+          remaining: config.restBetweenCycles - timeRemaining
         }
       }
       timeRemaining -= config.restBetweenCycles
@@ -73,7 +71,7 @@ export function getPhaseAtTime(config: WorkoutConfig, elapsedSeconds: number): P
       phase: 'cooldown',
       round: config.rounds,
       cycle: config.cycles,
-      remaining: config.cooldown - timeRemaining,
+      remaining: config.cooldown - timeRemaining
     }
   }
 
@@ -81,12 +79,13 @@ export function getPhaseAtTime(config: WorkoutConfig, elapsedSeconds: number): P
     phase: 'complete',
     round: config.rounds,
     cycle: config.cycles,
-    remaining: 0,
+    remaining: 0
   }
 }
 
 export function calculateTotalDuration(config: WorkoutConfig): number {
-  const cycleRoundsDuration = config.rounds * config.work + (config.rounds - 1) * config.rest
+  const cycleRoundsDuration =
+    config.rounds * config.work + (config.rounds - 1) * config.rest
   const restBetweenCyclesTotalDuration =
     config.cycles > 1 ? (config.cycles - 1) * config.restBetweenCycles : 0
 

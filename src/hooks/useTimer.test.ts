@@ -14,7 +14,7 @@ const defaultConfig: WorkoutConfig = {
   restBetweenCycles: 20,
   cooldown: 10,
   createdAt: 0,
-  updatedAt: 0,
+  updatedAt: 0
 }
 
 describe('useTimer', () => {
@@ -36,7 +36,9 @@ describe('useTimer', () => {
         defaultConfig.rounds * defaultConfig.work +
         (defaultConfig.rounds - 1) * defaultConfig.rest
       const restBetweenCyclesTotalDuration =
-        defaultConfig.cycles > 1 ? (defaultConfig.cycles - 1) * defaultConfig.restBetweenCycles : 0
+        defaultConfig.cycles > 1
+          ? (defaultConfig.cycles - 1) * defaultConfig.restBetweenCycles
+          : 0
       const expectedTotal =
         defaultConfig.prepare +
         defaultConfig.cycles * cycleRoundsDuration +
@@ -109,7 +111,7 @@ describe('useTimer', () => {
     it('should transition from prepare to work phase', async () => {
       const quickConfig: WorkoutConfig = {
         ...defaultConfig,
-        prepare: 1,
+        prepare: 1
       }
 
       const { result } = renderHook(() => useTimer(quickConfig))
@@ -118,16 +120,19 @@ describe('useTimer', () => {
         result.current.start()
       })
 
-      await waitFor(() => {
-        expect(result.current.phase).toBe('work')
-      }, { timeout: 2000 })
+      await waitFor(
+        () => {
+          expect(result.current.phase).toBe('work')
+        },
+        { timeout: 2000 }
+      )
     })
 
     it('should transition from work to rest phase', async () => {
       const quickConfig: WorkoutConfig = {
         ...defaultConfig,
         prepare: 1,
-        work: 1,
+        work: 1
       }
 
       const { result } = renderHook(() => useTimer(quickConfig))
@@ -136,9 +141,12 @@ describe('useTimer', () => {
         result.current.start()
       })
 
-      await waitFor(() => {
-        expect(result.current.phase).toBe('rest')
-      }, { timeout: 3000 })
+      await waitFor(
+        () => {
+          expect(result.current.phase).toBe('rest')
+        },
+        { timeout: 3000 }
+      )
     })
 
     it('should cycle through all phases correctly', async () => {
@@ -149,7 +157,7 @@ describe('useTimer', () => {
         rest: 1,
         rounds: 2,
         cycles: 1,
-        cooldown: 1,
+        cooldown: 1
       }
 
       const { result } = renderHook(() => useTimer(quickConfig))
@@ -161,20 +169,29 @@ describe('useTimer', () => {
 
       phases.add(result.current.phase)
 
-      await waitFor(() => {
-        phases.add(result.current.phase)
-        expect(result.current.phase).not.toBe('prepare')
-      }, { timeout: 2000 })
+      await waitFor(
+        () => {
+          phases.add(result.current.phase)
+          expect(result.current.phase).not.toBe('prepare')
+        },
+        { timeout: 2000 }
+      )
 
-      await waitFor(() => {
-        phases.add(result.current.phase)
-        expect(result.current.phase).toBe('rest')
-      }, { timeout: 2000 })
+      await waitFor(
+        () => {
+          phases.add(result.current.phase)
+          expect(result.current.phase).toBe('rest')
+        },
+        { timeout: 2000 }
+      )
 
-      await waitFor(() => {
-        phases.add(result.current.phase)
-        expect(result.current.phase).toBe('cooldown')
-      }, { timeout: 4000 })
+      await waitFor(
+        () => {
+          phases.add(result.current.phase)
+          expect(result.current.phase).toBe('cooldown')
+        },
+        { timeout: 4000 }
+      )
 
       expect(Array.from(phases)).toContain('prepare')
       expect(Array.from(phases)).toContain('work')
@@ -192,7 +209,7 @@ describe('useTimer', () => {
         rest: 1,
         rounds: 3,
         cycles: 1,
-        cooldown: 0,
+        cooldown: 0
       }
 
       const { result } = renderHook(() => useTimer(quickConfig))
@@ -203,9 +220,12 @@ describe('useTimer', () => {
 
       expect(result.current.round).toBe(1)
 
-      await waitFor(() => {
-        expect(result.current.round).toBe(2)
-      }, { timeout: 3000 })
+      await waitFor(
+        () => {
+          expect(result.current.round).toBe(2)
+        },
+        { timeout: 3000 }
+      )
     })
 
     it('should increment cycle counter', async () => {
@@ -217,7 +237,7 @@ describe('useTimer', () => {
         rounds: 1,
         cycles: 2,
         restBetweenCycles: 1,
-        cooldown: 0,
+        cooldown: 0
       }
 
       const { result } = renderHook(() => useTimer(quickConfig))
@@ -228,9 +248,12 @@ describe('useTimer', () => {
 
       expect(result.current.cycle).toBe(1)
 
-      await waitFor(() => {
-        expect(result.current.cycle).toBe(2)
-      }, { timeout: 4000 })
+      await waitFor(
+        () => {
+          expect(result.current.cycle).toBe(2)
+        },
+        { timeout: 4000 }
+      )
     })
   })
 
@@ -291,7 +314,7 @@ describe('useTimer', () => {
         rounds: 1,
         cycles: 1,
         restBetweenCycles: 0,
-        cooldown: 1,
+        cooldown: 1
       }
 
       const { result } = renderHook(() => useTimer(quickConfig))
@@ -300,9 +323,12 @@ describe('useTimer', () => {
         result.current.start()
       })
 
-      await waitFor(() => {
-        expect(result.current.isRunning).toBe(false)
-      }, { timeout: 5000 })
+      await waitFor(
+        () => {
+          expect(result.current.isRunning).toBe(false)
+        },
+        { timeout: 5000 }
+      )
 
       expect(result.current.phase).toBe('complete')
       expect(result.current.remaining).toBe(0)

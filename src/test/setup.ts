@@ -17,7 +17,7 @@ Object.defineProperty(globalThis, 'localStorage', {
     key: (index: number) => Array.from(storage.keys())[index] ?? null,
     get length() {
       return storage.size
-    },
+    }
   } satisfies Storage,
-  configurable: true,
+  configurable: true
 })

@@ -17,7 +17,10 @@ interface ToneStep {
 interface UseAudioReturn {
   playPhaseStart: (phase: AudioPhase) => void
   playPhaseEnd: (phase: AudioPhase) => void
-  playPhaseTransition: (previousPhase: AudioPhase | null, nextPhase: TimerPhase) => void
+  playPhaseTransition: (
+    previousPhase: AudioPhase | null,
+    nextPhase: TimerPhase
+  ) => void
   playWorkoutComplete: () => void
   playCountdownBeep: (phase: AudioPhase, remainingSeconds: number) => void
   /** Create and prime an AudioContext inside a gesture handler. Returns true if context was primed (audio will play). Call synchronously in a click/touch event before any state updates. */
@@ -33,50 +36,52 @@ const DEFAULT_GAIN = 0.18
 const PHASE_CUES: Record<`${AudioCuePhase}:${CueType}`, ToneStep[]> = {
   'prepare:start': [
     { frequency: 440, duration: 0.12, type: 'triangle' },
-    { frequency: 554.37, duration: 0.16, type: 'triangle' },
+    { frequency: 554.37, duration: 0.16, type: 'triangle' }
   ],
   'prepare:end': [
     { frequency: 659.25, duration: 0.08, type: 'triangle' },
-    { frequency: 783.99, duration: 0.1, type: 'triangle' },
+    { frequency: 783.99, duration: 0.1, type: 'triangle' }
   ],
   'work:start': [
     { frequency: 783.99, duration: 0.1, type: 'square', gain: 0.16 },
-    { frequency: 987.77, duration: 0.14, type: 'square', gain: 0.16 },
+    { frequency: 987.77, duration: 0.14, type: 'square', gain: 0.16 }
   ],
   'work:end': [
     { frequency: 659.25, duration: 0.08, type: 'square', gain: 0.16 },
     { frequency: 523.25, duration: 0.08, type: 'square', gain: 0.16 },
-    { frequency: 392, duration: 0.12, type: 'square', gain: 0.16 },
+    { frequency: 392, duration: 0.12, type: 'square', gain: 0.16 }
   ],
   'rest:start': [
     { frequency: 349.23, duration: 0.14, type: 'sine', gain: 0.14 },
-    { frequency: 440, duration: 0.18, type: 'sine', gain: 0.14 },
+    { frequency: 440, duration: 0.18, type: 'sine', gain: 0.14 }
   ],
   'rest:end': [
     { frequency: 293.66, duration: 0.08, type: 'sine', gain: 0.14 },
     { frequency: 349.23, duration: 0.08, type: 'sine', gain: 0.14 },
-    { frequency: 440, duration: 0.12, type: 'sine', gain: 0.14 },
+    { frequency: 440, duration: 0.12, type: 'sine', gain: 0.14 }
   ],
   'cooldown:start': [
     { frequency: 523.25, duration: 0.14, type: 'sawtooth', gain: 0.14 },
     { frequency: 440, duration: 0.14, type: 'sawtooth', gain: 0.14 },
-    { frequency: 349.23, duration: 0.18, type: 'sawtooth', gain: 0.14 },
+    { frequency: 349.23, duration: 0.18, type: 'sawtooth', gain: 0.14 }
   ],
   'cooldown:end': [
     { frequency: 392, duration: 0.1, type: 'triangle' },
     { frequency: 523.25, duration: 0.1, type: 'triangle' },
-    { frequency: 659.25, duration: 0.18, type: 'triangle' },
-  ],
+    { frequency: 659.25, duration: 0.18, type: 'triangle' }
+  ]
 }
 
 const WORKOUT_COMPLETE_CUE: ToneStep[] = [
   { frequency: 523.25, duration: 0.12, type: 'triangle' },
   { frequency: 659.25, duration: 0.12, type: 'triangle' },
   { frequency: 783.99, duration: 0.16, type: 'triangle' },
-  { frequency: 1046.5, duration: 0.28, type: 'triangle', gain: 0.2 },
+  { frequency: 1046.5, duration: 0.28, type: 'triangle', gain: 0.2 }
 ]
 
-const COUNTDOWN_CUE: ToneStep[] = [{ frequency: 1046.5, duration: 0.08, type: 'square', gain: 0.12 }]
+const COUNTDOWN_CUE: ToneStep[] = [
+  { frequency: 1046.5, duration: 0.08, type: 'square', gain: 0.12 }
+]
 
 function normalizePhase(phase: AudioPhase): AudioCuePhase {
   return phase === 'restBetweenCycles' ? 'rest' : phase
@@ -110,28 +115,32 @@ export function useAudio(): UseAudioReturn {
 
   const isSoundEnabled = useCallback(() => getSettings().soundEnabled, [])
 
-  const ensureAudioContext = useCallback(async (): Promise<AudioContext | null> => {
-    if (!isSoundEnabled()) {
-      return null
-    }
+  const ensureAudioContext =
+    useCallback(async (): Promise<AudioContext | null> => {
+      if (!isSoundEnabled()) {
+        return null
+      }
 
-    // Must use a single context primed inside a gesture — never create fresh
-    // contexts from async code on iOS (they start "suspended" and can't be
-    // resumed outside a gesture).
-    const AudioContextConstructor = getAudioContextConstructor()
-    if (!AudioContextConstructor) {
-      return null
-    }
+      // Must use a single context primed inside a gesture — never create fresh
+      // contexts from async code on iOS (they start "suspended" and can't be
+      // resumed outside a gesture).
+      const AudioContextConstructor = getAudioContextConstructor()
+      if (!AudioContextConstructor) {
+        return null
+      }
 
-    if (!audioContextRef.current || audioContextRef.current.state === 'closed') {
-      // Fallback: context was lost (e.g., component unmounted and remounted).
-      // iOS will silently block this resume — sounds won't play until the user
-      // triggers another gesture.
-      audioContextRef.current = new AudioContextConstructor()
-    }
+      if (
+        !audioContextRef.current ||
+        audioContextRef.current.state === 'closed'
+      ) {
+        // Fallback: context was lost (e.g., component unmounted and remounted).
+        // iOS will silently block this resume — sounds won't play until the user
+        // triggers another gesture.
+        audioContextRef.current = new AudioContextConstructor()
+      }
 
-    return audioContextRef.current
-  }, [isSoundEnabled])
+      return audioContextRef.current
+    }, [isSoundEnabled])
 
   const playSequence = useCallback(
     (sequence: ToneStep[]) => {
@@ -156,7 +165,10 @@ export function useAudio(): UseAudioReturn {
           oscillator.frequency.setValueAtTime(step.frequency, cursor)
 
           gainNode.gain.setValueAtTime(MIN_GAIN, cursor)
-          gainNode.gain.linearRampToValueAtTime(maxGain, cursor + ATTACK_SECONDS)
+          gainNode.gain.linearRampToValueAtTime(
+            maxGain,
+            cursor + ATTACK_SECONDS
+          )
           gainNode.gain.exponentialRampToValueAtTime(MIN_GAIN, endTime)
 
           oscillator.connect(gainNode)
@@ -263,7 +275,9 @@ export function useAudio(): UseAudioReturn {
       }
     }
 
-    document.addEventListener('touchstart', handleTouchStart, { passive: false })
+    document.addEventListener('touchstart', handleTouchStart, {
+      passive: false
+    })
     document.addEventListener('visibilitychange', handleVisibilityChange)
 
     return () => {
@@ -333,7 +347,7 @@ export function useAudio(): UseAudioReturn {
         left: '-9999px',
         top: '-9999px',
         width: '1px',
-        height: '1px',
+        height: '1px'
       } as React.CSSProperties)
       document.body.appendChild(audioEl)
 
@@ -418,6 +432,6 @@ export function useAudio(): UseAudioReturn {
     playPhaseTransition,
     playWorkoutComplete,
     playCountdownBeep,
-    primeAudioFromGesture,
+    primeAudioFromGesture
   }
 }

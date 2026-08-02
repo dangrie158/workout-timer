@@ -18,18 +18,19 @@ export function useScreenWakeLock(active: boolean): void {
     }
   }, [])
 
-  const requestWakeLock = useCallback(async (): Promise<WakeLockSentinel | null> => {
-    if (typeof navigator === 'undefined' || !('wakeLock' in navigator)) {
-      return null
-    }
+  const requestWakeLock =
+    useCallback(async (): Promise<WakeLockSentinel | null> => {
+      if (typeof navigator === 'undefined' || !('wakeLock' in navigator)) {
+        return null
+      }
 
-    try {
-      return await navigator.wakeLock.request('screen')
-    } catch (error) {
-      console.error('Failed to acquire screen wake lock:', error)
-      return null
-    }
-  }, [])
+      try {
+        return await navigator.wakeLock.request('screen')
+      } catch (error) {
+        console.error('Failed to acquire screen wake lock:', error)
+        return null
+      }
+    }, [])
 
   useEffect(() => {
     let cancelled = false

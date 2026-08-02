@@ -36,7 +36,7 @@ const defaultSettings: GlobalSettings = {
   soundEnabled: true,
   vibrationEnabled: true,
   autostart: false,
-  countdownSeconds: 10,
+  countdownSeconds: 10
 }
 
 let oscillatorCount = 0
@@ -47,7 +47,7 @@ function createAudioParam(): MockAudioParam {
   return {
     setValueAtTime: vi.fn(),
     linearRampToValueAtTime: vi.fn(),
-    exponentialRampToValueAtTime: vi.fn(),
+    exponentialRampToValueAtTime: vi.fn()
   }
 }
 
@@ -65,15 +65,18 @@ function installAudioContextMock() {
         frequency: createAudioParam(),
         connect: vi.fn(),
         start: vi.fn(),
-        stop: vi.fn(),
+        stop: vi.fn()
       } satisfies MockOscillator
     }),
-    createGain: vi.fn(() => ({
-      gain: createAudioParam(),
-      connect: vi.fn(),
-    }) satisfies MockGainNode),
+    createGain: vi.fn(
+      () =>
+        ({
+          gain: createAudioParam(),
+          connect: vi.fn()
+        }) satisfies MockGainNode
+    ),
     resume: vi.fn().mockResolvedValue(undefined),
-    close: vi.fn().mockResolvedValue(undefined),
+    close: vi.fn().mockResolvedValue(undefined)
   }
 
   AudioContextMock = vi.fn(function MockAudioContextConstructor(this: object) {
@@ -83,7 +86,7 @@ function installAudioContextMock() {
   Object.defineProperty(window, 'AudioContext', {
     configurable: true,
     writable: true,
-    value: AudioContextMock,
+    value: AudioContextMock
   })
 }
 
@@ -112,7 +115,7 @@ describe('useAudio', () => {
       'settings',
       JSON.stringify({
         ...defaultSettings,
-        soundEnabled: false,
+        soundEnabled: false
       } satisfies GlobalSettings)
     )
 
