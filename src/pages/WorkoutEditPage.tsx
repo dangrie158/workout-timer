@@ -1,19 +1,19 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   getWorkouts,
   createWorkout,
-  updateWorkout
-} from '../store/workoutStore'
-import FieldRow from '../components/FieldRow'
-import { PHASE_COLORS } from '../utils/timerUi'
+  updateWorkout,
+} from "../store/workoutStore";
+import FieldRow from "../components/FieldRow";
+import { PHASE_COLORS } from "../utils/timerUi";
 
 function SectionCard({
   title,
-  children
+  children,
 }: {
-  title: string
-  children: React.ReactNode
+  title: string;
+  children: React.ReactNode;
 }) {
   return (
     <div className="rounded-[2rem] border border-white/10 shadow-xl shadow-black/25 mt-4 overflow-hidden">
@@ -24,17 +24,17 @@ function SectionCard({
         {children}
       </div>
     </div>
-  )
+  );
 }
 
 function StatCell({
   label,
   value,
-  accent
+  accent,
 }: {
-  label: string
-  value: string
-  accent?: string
+  label: string;
+  value: string;
+  accent?: string;
 }) {
   return (
     <div
@@ -42,7 +42,7 @@ function StatCell({
       style={
         accent
           ? {
-              background: `radial-gradient(circle at 50% -20%, ${accent}18, #18181b 62%), #09090b`
+              background: `radial-gradient(circle at 50% -20%, ${accent}18, #18181b 62%), #09090b`,
             }
           : undefined
       }
@@ -64,116 +64,116 @@ function StatCell({
         <div className="text-sm font-semibold text-white">{value}</div>
       </div>
     </div>
-  )
+  );
 }
 
 export default function WorkoutEditPage() {
-  const { id } = useParams<{ id?: string }>()
-  const navigate = useNavigate()
+  const { id } = useParams<{ id?: string }>();
+  const navigate = useNavigate();
 
-  const nameRef = useRef<HTMLDivElement>(null)
+  const nameRef = useRef<HTMLDivElement>(null);
 
-  const [name, setName] = useState('')
-  const [prepare, setPrepare] = useState(30)
-  const [work, setWork] = useState(60)
-  const [rest, setRest] = useState(30)
-  const [rounds, setRounds] = useState(5)
-  const [cycles, setCycles] = useState(1)
-  const [restBetweenCycles, setRestBetweenCycles] = useState(60)
-  const [cooldown, setCooldown] = useState(30)
-  const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(true)
-  const [hasChanges, setHasChanges] = useState(false)
+  const [name, setName] = useState("");
+  const [prepare, setPrepare] = useState(30);
+  const [work, setWork] = useState(60);
+  const [rest, setRest] = useState(30);
+  const [rounds, setRounds] = useState(5);
+  const [cycles, setCycles] = useState(1);
+  const [restBetweenCycles, setRestBetweenCycles] = useState(60);
+  const [cooldown, setCooldown] = useState(30);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasChanges, setHasChanges] = useState(false);
 
   const showValidation = useCallback((msg: string) => {
-    setError(msg)
-    nameRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  }, [])
+    setError(msg);
+    nameRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, []);
 
   // Load existing workout if editing (also handles bfcache restore)
   useEffect(() => {
     if (id) {
-      const workouts = getWorkouts()
-      const workout = workouts.find((w) => w.id === id)
+      const workouts = getWorkouts();
+      const workout = workouts.find((w) => w.id === id);
       if (workout) {
-        setName(workout.name)
-        setPrepare(workout.prepare)
-        setWork(workout.work)
-        setRest(workout.rest)
-        setRounds(workout.rounds)
-        setCycles(workout.cycles)
-        setRestBetweenCycles(workout.restBetweenCycles)
-        setCooldown(workout.cooldown)
+        setName(workout.name);
+        setPrepare(workout.prepare);
+        setWork(workout.work);
+        setRest(workout.rest);
+        setRounds(workout.rounds);
+        setCycles(workout.cycles);
+        setRestBetweenCycles(workout.restBetweenCycles);
+        setCooldown(workout.cooldown);
       }
     }
-    setIsLoading(false)
-  }, [id])
+    setIsLoading(false);
+  }, [id]);
 
   // Catch bfcache restore of WorkoutEditPage — re-read form values from store
   useEffect(() => {
     const handlePageshow = () => {
       if (id) {
-        const workouts = getWorkouts()
-        const workout = workouts.find((w) => w.id === id)
+        const workouts = getWorkouts();
+        const workout = workouts.find((w) => w.id === id);
         if (workout) {
-          setName(workout.name)
-          setPrepare(workout.prepare)
-          setWork(workout.work)
-          setRest(workout.rest)
-          setRounds(workout.rounds)
-          setCycles(workout.cycles)
-          setRestBetweenCycles(workout.restBetweenCycles)
-          setCooldown(workout.cooldown)
+          setName(workout.name);
+          setPrepare(workout.prepare);
+          setWork(workout.work);
+          setRest(workout.rest);
+          setRounds(workout.rounds);
+          setCycles(workout.cycles);
+          setRestBetweenCycles(workout.restBetweenCycles);
+          setCooldown(workout.cooldown);
         }
       } else {
-        setName('')
-        setPrepare(30)
-        setWork(60)
-        setRest(30)
-        setRounds(5)
-        setCycles(1)
-        setRestBetweenCycles(60)
-        setCooldown(30)
+        setName("");
+        setPrepare(30);
+        setWork(60);
+        setRest(30);
+        setRounds(5);
+        setCycles(1);
+        setRestBetweenCycles(60);
+        setCooldown(30);
       }
-    }
-    window.addEventListener('pageshow', handlePageshow)
-    return () => window.removeEventListener('pageshow', handlePageshow)
-  }, [id])
+    };
+    window.addEventListener("pageshow", handlePageshow);
+    return () => window.removeEventListener("pageshow", handlePageshow);
+  }, [id]);
 
   // Warn before leaving if there are unsaved changes
   const navigateAway = useCallback(
     (dest: string) => {
       if (hasChanges) {
         const confirmed = window.confirm(
-          'Unsaved changes. Leave without saving?'
-        )
-        if (!confirmed) return false
+          "Unsaved changes. Leave without saving?",
+        );
+        if (!confirmed) return false;
       }
-      navigate(dest)
-      return true
+      navigate(dest);
+      return true;
     },
-    [hasChanges, navigate]
-  )
+    [hasChanges, navigate],
+  );
 
   const markChanged = useCallback(() => {
-    setHasChanges(true)
-  }, [])
+    setHasChanges(true);
+  }, []);
 
   // Browser-level warning (tab close, address bar navigation, back button past this page)
   useEffect(() => {
-    if (!hasChanges) return
+    if (!hasChanges) return;
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      e.preventDefault()
-      e.returnValue = ''
-    }
-    window.addEventListener('beforeunload', handleBeforeUnload)
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
-  }, [hasChanges])
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [hasChanges]);
 
   const handleSave = () => {
     if (!name.trim()) {
-      showValidation('Workout name is required')
-      return
+      showValidation("Workout name is required");
+      return;
     }
 
     try {
@@ -185,47 +185,47 @@ export default function WorkoutEditPage() {
         rounds,
         cycles,
         restBetweenCycles,
-        cooldown
-      }
+        cooldown,
+      };
 
       if (id) {
-        updateWorkout(id, workoutData)
+        updateWorkout(id, workoutData);
       } else {
-        createWorkout(workoutData)
+        createWorkout(workoutData);
       }
 
-      setHasChanges(false)
+      setHasChanges(false);
 
       // Notify other pages in the same tab (storage event doesn't fire on originating tab)
-      window.postMessage({ type: '__workouts_changed' }, '*')
+      window.postMessage({ type: "__workouts_changed" }, "*");
 
-      navigate('/')
+      navigate("/");
     } catch (err) {
       showValidation(
-        err instanceof Error ? err.message : 'Failed to save workout'
-      )
+        err instanceof Error ? err.message : "Failed to save workout",
+      );
     }
-  }
+  };
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
         <p>Loading...</p>
       </div>
-    )
+    );
   }
 
   const totalDuration =
     prepare +
     cycles * (rounds * (work + rest) - rest + restBetweenCycles) -
     restBetweenCycles +
-    cooldown
+    cooldown;
 
   const formatTotalDuration = (total: number) => {
-    const m = Math.floor(total / 60)
-    const s = total % 60
-    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
-  }
+    const m = Math.floor(total / 60);
+    const s = total % 60;
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  };
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
@@ -233,7 +233,7 @@ export default function WorkoutEditPage() {
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <button
-            onClick={() => navigateAway('/')}
+            onClick={() => navigateAway("/")}
             className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/10"
           >
             ← Workouts
@@ -243,7 +243,7 @@ export default function WorkoutEditPage() {
               Edit
             </p>
             <h1 className="mt-1 text-lg font-semibold text-white">
-              {id ? 'Workout' : 'New workout'}
+              {id ? "Workout" : "New workout"}
             </h1>
           </div>
         </div>
@@ -265,9 +265,9 @@ export default function WorkoutEditPage() {
             type="text"
             value={name}
             onChange={(e) => {
-              setName(e.target.value)
-              setError('')
-              markChanged()
+              setName(e.target.value);
+              setError("");
+              markChanged();
             }}
             placeholder="e.g., HIIT Workout"
             className="mt-3 w-full px-4 py-3 rounded-xl bg-zinc-800/60 border border-white/10 text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
@@ -283,8 +283,8 @@ export default function WorkoutEditPage() {
               value={rounds}
               displayValue={String(rounds)}
               onChange={(v) => {
-                setRounds(v)
-                markChanged()
+                setRounds(v);
+                markChanged();
               }}
               min={1}
               max={100}
@@ -295,8 +295,8 @@ export default function WorkoutEditPage() {
               value={cycles}
               displayValue={String(cycles)}
               onChange={(v) => {
-                setCycles(v)
-                markChanged()
+                setCycles(v);
+                markChanged();
               }}
               min={1}
               max={100}
@@ -312,8 +312,8 @@ export default function WorkoutEditPage() {
               color="prepare"
               value={prepare}
               onChange={(v) => {
-                setPrepare(v)
-                markChanged()
+                setPrepare(v);
+                markChanged();
               }}
               min={0}
               max={600}
@@ -324,8 +324,8 @@ export default function WorkoutEditPage() {
               color="work"
               value={work}
               onChange={(v) => {
-                setWork(v)
-                markChanged()
+                setWork(v);
+                markChanged();
               }}
               min={1}
               max={3600}
@@ -336,8 +336,8 @@ export default function WorkoutEditPage() {
               color="rest"
               value={rest}
               onChange={(v) => {
-                setRest(v)
-                markChanged()
+                setRest(v);
+                markChanged();
               }}
               min={0}
               max={3600}
@@ -347,8 +347,8 @@ export default function WorkoutEditPage() {
               label="Rest Between Cycles"
               value={restBetweenCycles}
               onChange={(v) => {
-                setRestBetweenCycles(v)
-                markChanged()
+                setRestBetweenCycles(v);
+                markChanged();
               }}
               customAccent="#FF9800"
               min={0}
@@ -360,8 +360,8 @@ export default function WorkoutEditPage() {
               color="cooldown"
               value={cooldown}
               onChange={(v) => {
-                setCooldown(v)
-                markChanged()
+                setCooldown(v);
+                markChanged();
               }}
               min={0}
               max={600}
@@ -390,7 +390,7 @@ export default function WorkoutEditPage() {
         <div className="mt-auto pt-6">
           <div className="flex gap-3">
             <button
-              onClick={() => navigateAway('/')}
+              onClick={() => navigateAway("/")}
               className="flex-1 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 font-semibold text-white transition hover:bg-white/10"
             >
               Cancel
@@ -399,11 +399,11 @@ export default function WorkoutEditPage() {
               onClick={handleSave}
               className="flex-1 rounded-2xl bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-500"
             >
-              {id ? 'Update' : 'Create'}
+              {id ? "Update" : "Create"}
             </button>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

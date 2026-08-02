@@ -1,14 +1,14 @@
-import type { WorkoutConfig } from '../types/workout'
-import { useNavigate } from 'react-router-dom'
-import { deleteWorkout } from '../store/workoutStore'
-import { PHASE_COLORS } from '../utils/timerUi'
-import { calculateTotalDuration } from '../utils/timerSequence'
-import { formatCompactDuration } from '../utils/timerUi'
-import type { KeyboardEvent, MouseEvent } from 'react'
+import type { WorkoutConfig } from "../types/workout";
+import { useNavigate } from "react-router-dom";
+import { deleteWorkout } from "../store/workoutStore";
+import { PHASE_COLORS } from "../utils/timerUi";
+import { calculateTotalDuration } from "../utils/timerSequence";
+import { formatCompactDuration } from "../utils/timerUi";
+import type { KeyboardEvent, MouseEvent } from "react";
 
 interface WorkoutCardProps {
-  workout: WorkoutConfig
-  onDelete?: () => void
+  workout: WorkoutConfig;
+  onDelete?: () => void;
 }
 
 function PencilIcon() {
@@ -27,7 +27,7 @@ function PencilIcon() {
       <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
       <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
     </svg>
-  )
+  );
 }
 
 function TrashIcon() {
@@ -48,13 +48,13 @@ function TrashIcon() {
       <path d="M10 11v6M14 11v6" />
       <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
     </svg>
-  )
+  );
 }
 
 interface StatCellProps {
-  label: string
-  value: string
-  accent?: string
+  label: string;
+  value: string;
+  accent?: string;
 }
 
 function StatCell({ label, value, accent }: StatCellProps) {
@@ -64,7 +64,7 @@ function StatCell({ label, value, accent }: StatCellProps) {
         <>
           <div
             className="h-[3px] w-full bg-gradient-to-r from-[color:var(--c)] to-transparent"
-            style={{ '--c': accent } as React.CSSProperties}
+            style={{ "--c": accent } as React.CSSProperties}
           />
           <div className="px-3 py-3 flex items-center gap-2.5">
             <div
@@ -88,41 +88,41 @@ function StatCell({ label, value, accent }: StatCellProps) {
         <div className="text-sm font-semibold text-white">{value}</div>
       </div>
     </div>
-  )
+  );
 }
 
 export default function WorkoutCard({ workout, onDelete }: WorkoutCardProps) {
-  const navigate = useNavigate()
-  const totalDuration = calculateTotalDuration(workout)
-  const timerPath = `/workout/${workout.id}/timer`
+  const navigate = useNavigate();
+  const totalDuration = calculateTotalDuration(workout);
+  const timerPath = `/workout/${workout.id}/timer`;
 
   const handleOpenWorkout = () => {
-    navigate(timerPath)
-  }
+    navigate(timerPath);
+  };
 
   const handleCardKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.target !== event.currentTarget) {
-      return
+      return;
     }
 
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault()
-      handleOpenWorkout()
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      handleOpenWorkout();
     }
-  }
+  };
 
   const stopCardNavigation = (event: MouseEvent<HTMLButtonElement>) => {
-    event.stopPropagation()
-  }
+    event.stopPropagation();
+  };
 
   const handleDelete = (event: MouseEvent<HTMLButtonElement>) => {
-    stopCardNavigation(event)
+    stopCardNavigation(event);
 
     if (confirm(`Delete "${workout.name}"?`)) {
-      deleteWorkout(workout.id)
-      onDelete?.()
+      deleteWorkout(workout.id);
+      onDelete?.();
     }
-  }
+  };
 
   return (
     <div
@@ -143,8 +143,8 @@ export default function WorkoutCard({ workout, onDelete }: WorkoutCardProps) {
         <div className="flex gap-1.5 shrink-0 ml-3">
           <button
             onClick={(event) => {
-              stopCardNavigation(event)
-              navigate(`/workout/${workout.id}/edit`)
+              stopCardNavigation(event);
+              navigate(`/workout/${workout.id}/edit`);
             }}
             aria-label="Edit workout"
             className="rounded-full border border-white/10 bg-white/5 p-2 text-zinc-400 transition hover:bg-white/10 hover:text-white"
@@ -211,5 +211,5 @@ export default function WorkoutCard({ workout, onDelete }: WorkoutCardProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }

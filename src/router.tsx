@@ -1,8 +1,8 @@
-import { HashRouter, Routes, Route } from 'react-router-dom'
-import HomePage from './pages/HomePage'
-import WorkoutEditPage from './pages/WorkoutEditPage'
-import TimerPage from './pages/TimerPage'
-import SettingsPage from './pages/SettingsPage'
+import { HashRouter, Routes, Route } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import WorkoutEditPage from "./pages/WorkoutEditPage";
+import TimerPage from "./pages/TimerPage";
+import SettingsPage from "./pages/SettingsPage";
 
 export default function Router() {
   return (
@@ -15,5 +15,5 @@ export default function Router() {
         <Route path="/settings" element={<SettingsPage />} />
       </Routes>
     </HashRouter>
-  )
+  );
 }

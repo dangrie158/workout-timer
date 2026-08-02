@@ -1,18 +1,18 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from "react";
 
 interface NumberPickerProps {
-  isOpen: boolean
-  title: string
-  value: number
-  onChange: (value: number) => void
-  onClose: () => void
-  min?: number
-  max?: number
+  isOpen: boolean;
+  title: string;
+  value: number;
+  onChange: (value: number) => void;
+  onClose: () => void;
+  min?: number;
+  max?: number;
 }
 
-const ITEM_HEIGHT = 48
-const PADDING_ITEMS = 2
-const REPEAT_COPIES = 3
+const ITEM_HEIGHT = 48;
+const PADDING_ITEMS = 2;
+const REPEAT_COPIES = 3;
 
 export default function NumberPicker({
   isOpen,
@@ -21,78 +21,78 @@ export default function NumberPicker({
   onChange,
   onClose,
   min = 0,
-  max = 3600
+  max = 3600,
 }: NumberPickerProps) {
-  const listRef = useRef<HTMLDivElement | null>(null)
-  const [tempValue, setTempValue] = useState(value)
-  const titleId = `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-picker-title`
+  const listRef = useRef<HTMLDivElement | null>(null);
+  const [tempValue, setTempValue] = useState(value);
+  const titleId = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-picker-title`;
 
   const values = useMemo(() => {
-    return Array.from({ length: max - min + 1 }, (_, index) => min + index)
-  }, [max, min])
+    return Array.from({ length: max - min + 1 }, (_, index) => min + index);
+  }, [max, min]);
 
   const repeatedValues = useMemo(() => {
-    return Array.from({ length: REPEAT_COPIES }, () => values).flat()
-  }, [values])
+    return Array.from({ length: REPEAT_COPIES }, () => values).flat();
+  }, [values]);
 
-  const middleStartIndex = values.length
-  const centerOffset = PADDING_ITEMS * ITEM_HEIGHT
+  const middleStartIndex = values.length;
+  const centerOffset = PADDING_ITEMS * ITEM_HEIGHT;
 
   const scrollToValue = (nextValue: number) => {
-    const list = listRef.current
+    const list = listRef.current;
     if (!list) {
-      return
+      return;
     }
 
-    const nextIndex = Math.max(0, Math.min(values.length - 1, nextValue - min))
-    list.scrollTop = (middleStartIndex + nextIndex) * ITEM_HEIGHT
-  }
+    const nextIndex = Math.max(0, Math.min(values.length - 1, nextValue - min));
+    list.scrollTop = (middleStartIndex + nextIndex) * ITEM_HEIGHT;
+  };
 
   useEffect(() => {
     if (!isOpen) {
-      return
+      return;
     }
 
-    setTempValue(value)
+    setTempValue(value);
 
     const frame = window.requestAnimationFrame(() => {
-      scrollToValue(value)
-    })
+      scrollToValue(value);
+    });
 
     return () => {
-      window.cancelAnimationFrame(frame)
-    }
-  }, [isOpen, value])
+      window.cancelAnimationFrame(frame);
+    };
+  }, [isOpen, value]);
 
   const handleScroll = () => {
-    const list = listRef.current
+    const list = listRef.current;
     if (!list) {
-      return
+      return;
     }
 
-    const rawIndex = Math.round(list.scrollTop / ITEM_HEIGHT)
+    const rawIndex = Math.round(list.scrollTop / ITEM_HEIGHT);
     const normalizedIndex =
-      ((rawIndex % values.length) + values.length) % values.length
-    const nextValue = min + normalizedIndex
+      ((rawIndex % values.length) + values.length) % values.length;
+    const nextValue = min + normalizedIndex;
 
-    setTempValue((current) => (current === nextValue ? current : nextValue))
+    setTempValue((current) => (current === nextValue ? current : nextValue));
 
-    const lowerBound = values.length * ITEM_HEIGHT
-    const upperBound = values.length * 2 * ITEM_HEIGHT
+    const lowerBound = values.length * ITEM_HEIGHT;
+    const upperBound = values.length * 2 * ITEM_HEIGHT;
 
     if (list.scrollTop < lowerBound) {
-      list.scrollTop += values.length * ITEM_HEIGHT
+      list.scrollTop += values.length * ITEM_HEIGHT;
     } else if (list.scrollTop > upperBound) {
-      list.scrollTop -= values.length * ITEM_HEIGHT
+      list.scrollTop -= values.length * ITEM_HEIGHT;
     }
-  }
+  };
 
   const handleConfirm = () => {
-    onChange(tempValue)
-    onClose()
-  }
+    onChange(tempValue);
+    onClose();
+  };
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <>
@@ -136,11 +136,11 @@ export default function NumberPicker({
                 paddingTop: centerOffset,
                 paddingBottom: centerOffset,
                 scrollPaddingTop: centerOffset,
-                scrollPaddingBottom: centerOffset
+                scrollPaddingBottom: centerOffset,
               }}
             >
               {repeatedValues.map((item, index) => {
-                const isSelected = tempValue === item
+                const isSelected = tempValue === item;
 
                 return (
                   <div
@@ -148,12 +148,12 @@ export default function NumberPicker({
                     role="option"
                     aria-selected={isSelected}
                     className={`flex h-12 snap-center items-center justify-center text-2xl font-semibold transition ${
-                      isSelected ? 'text-white' : 'text-zinc-500'
+                      isSelected ? "text-white" : "text-zinc-500"
                     }`}
                   >
                     {item}
                   </div>
-                )
+                );
               })}
             </div>
           </div>
@@ -181,5 +181,5 @@ export default function NumberPicker({
         </div>
       </div>
     </>
-  )
+  );
 }

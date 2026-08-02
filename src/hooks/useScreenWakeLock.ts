@@ -1,67 +1,67 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef } from "react";
 
 export function useScreenWakeLock(active: boolean): void {
-  const wakeLockRef = useRef<WakeLockSentinel | null>(null)
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
 
   const releaseWakeLock = useCallback(async () => {
     if (!wakeLockRef.current) {
-      return
+      return;
     }
 
-    const sentinel = wakeLockRef.current
-    wakeLockRef.current = null
+    const sentinel = wakeLockRef.current;
+    wakeLockRef.current = null;
 
     try {
-      await sentinel.release()
+      await sentinel.release();
     } catch (error) {
-      console.error('Failed to release screen wake lock:', error)
+      console.error("Failed to release screen wake lock:", error);
     }
-  }, [])
+  }, []);
 
   const requestWakeLock =
     useCallback(async (): Promise<WakeLockSentinel | null> => {
-      if (typeof navigator === 'undefined' || !('wakeLock' in navigator)) {
-        return null
+      if (typeof navigator === "undefined" || !("wakeLock" in navigator)) {
+        return null;
       }
 
       try {
-        return await navigator.wakeLock.request('screen')
+        return await navigator.wakeLock.request("screen");
       } catch (error) {
-        console.error('Failed to acquire screen wake lock:', error)
-        return null
+        console.error("Failed to acquire screen wake lock:", error);
+        return null;
       }
-    }, [])
+    }, []);
 
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
 
     if (!active) {
-      void releaseWakeLock()
-      return
+      void releaseWakeLock();
+      return;
     }
 
     void (async () => {
-      const sentinel = await requestWakeLock()
+      const sentinel = await requestWakeLock();
 
       if (!sentinel) {
-        return
+        return;
       }
 
       if (cancelled) {
         try {
-          await sentinel.release()
+          await sentinel.release();
         } catch (error) {
-          console.error('Failed to release stale screen wake lock:', error)
+          console.error("Failed to release stale screen wake lock:", error);
         }
-        return
+        return;
       }
 
-      wakeLockRef.current = sentinel
-    })()
+      wakeLockRef.current = sentinel;
+    })();
 
     return () => {
-      cancelled = true
-      void releaseWakeLock()
-    }
-  }, [active, releaseWakeLock, requestWakeLock])
+      cancelled = true;
+      void releaseWakeLock();
+    };
+  }, [active, releaseWakeLock, requestWakeLock]);
 }

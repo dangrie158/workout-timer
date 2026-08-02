@@ -1,48 +1,48 @@
-import { PHASE_COLORS, PHASE_LABELS, formatClock } from '../utils/timerUi'
-import type { TimerPhase } from '../types'
+import { PHASE_COLORS, PHASE_LABELS, formatClock } from "../utils/timerUi";
+import type { TimerPhase } from "../types";
 
 interface TimerDisplayProps {
-  phase: TimerPhase
-  remaining: number
-  totalDuration: number
-  isRunning: boolean
-  isPaused: boolean
+  phase: TimerPhase;
+  remaining: number;
+  totalDuration: number;
+  isRunning: boolean;
+  isPaused: boolean;
 }
 
 function getStatusText(
   phase: TimerPhase,
   isRunning: boolean,
-  isPaused: boolean
+  isPaused: boolean,
 ): string {
-  if (phase === 'complete') {
-    return 'Workout complete'
+  if (phase === "complete") {
+    return "Workout complete";
   }
 
   if (isPaused) {
-    return 'Paused'
+    return "Paused";
   }
 
   if (!isRunning) {
-    return 'Ready to start'
+    return "Ready to start";
   }
 
-  if (phase === 'prepare') {
-    return 'Get ready'
+  if (phase === "prepare") {
+    return "Get ready";
   }
 
-  if (phase === 'work') {
-    return 'Push through'
+  if (phase === "work") {
+    return "Push through";
   }
 
-  if (phase === 'restBetweenCycles') {
-    return 'Recover between cycles'
+  if (phase === "restBetweenCycles") {
+    return "Recover between cycles";
   }
 
-  if (phase === 'rest') {
-    return 'Catch your breath'
+  if (phase === "rest") {
+    return "Catch your breath";
   }
 
-  return 'Cool down'
+  return "Cool down";
 }
 
 export default function TimerDisplay({
@@ -50,9 +50,9 @@ export default function TimerDisplay({
   remaining,
   totalDuration,
   isRunning,
-  isPaused
+  isPaused,
 }: TimerDisplayProps) {
-  const highlight = PHASE_COLORS[phase]
+  const highlight = PHASE_COLORS[phase];
 
   return (
     <div className="flex h-full w-full max-w-[13rem] flex-col items-center justify-between px-5 py-6 text-center">
@@ -78,7 +78,7 @@ export default function TimerDisplay({
       </div>
 
       <div className="flex min-h-12 flex-col items-center justify-end pb-6">
-        {phase !== 'complete' && (
+        {phase !== "complete" && (
           <div className="mt-2 flex items-center gap-1 text-white/20">
             {isRunning ? (
               <>
@@ -108,7 +108,7 @@ export default function TimerDisplay({
                   <polygon points="5 3 19 12 5 21 5 3" />
                 </svg>
                 <span className="text-[0.6rem] uppercase tracking-[0.2em]">
-                  {isPaused ? 'tap to resume' : 'tap to start'}
+                  {isPaused ? "tap to resume" : "tap to start"}
                 </span>
               </>
             )}
@@ -116,5 +116,5 @@ export default function TimerDisplay({
         )}
       </div>
     </div>
-  )
+  );
 }

@@ -1,20 +1,20 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import PhaseBlock from '../components/PhaseBlock'
-import ProgressRing from '../components/ProgressRing'
-import TimerDisplay from '../components/TimerDisplay'
-import { useAudio, type AudioPhase } from '../hooks/useAudio'
-import { useTimer } from '../hooks/useTimer'
-import { useScreenWakeLock } from '../hooks/useScreenWakeLock'
-import { getSettings } from '../store/settingsStore'
-import { getWorkouts } from '../store/workoutStore'
-import type { TimerPhase, WorkoutConfig } from '../types'
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import PhaseBlock from "../components/PhaseBlock";
+import ProgressRing from "../components/ProgressRing";
+import TimerDisplay from "../components/TimerDisplay";
+import { useAudio, type AudioPhase } from "../hooks/useAudio";
+import { useTimer } from "../hooks/useTimer";
+import { useScreenWakeLock } from "../hooks/useScreenWakeLock";
+import { getSettings } from "../store/settingsStore";
+import { getWorkouts } from "../store/workoutStore";
+import type { TimerPhase, WorkoutConfig } from "../types";
 import {
   PHASE_COLORS,
   PHASE_LABELS,
   formatCompactDuration,
-  getPhaseDuration
-} from '../utils/timerUi'
+  getPhaseDuration,
+} from "../utils/timerUi";
 
 function PlayIcon() {
   return (
@@ -27,7 +27,7 @@ function PlayIcon() {
     >
       <polygon points="5 3 19 12 5 21 5 3" />
     </svg>
-  )
+  );
 }
 
 function PauseIcon() {
@@ -42,7 +42,7 @@ function PauseIcon() {
       <rect x="6" y="4" width="4" height="16" rx="1" />
       <rect x="14" y="4" width="4" height="16" rx="1" />
     </svg>
-  )
+  );
 }
 
 function RestartIcon() {
@@ -61,32 +61,32 @@ function RestartIcon() {
       <path d="M3 2v6h6" />
       <path d="M3 8a9 9 0 1 0 2.64-4.36L3 6" />
     </svg>
-  )
+  );
 }
 
 function getPhaseProgress(
   duration: number,
   remaining: number,
-  phase: TimerPhase
+  phase: TimerPhase,
 ): number {
-  if (phase === 'complete') {
-    return 1
+  if (phase === "complete") {
+    return 1;
   }
 
   if (duration <= 0) {
-    return 1
+    return 1;
   }
 
-  return Math.min(1, Math.max(0, (duration - remaining) / duration))
+  return Math.min(1, Math.max(0, (duration - remaining) / duration));
 }
 
 export default function TimerPage() {
-  const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const workout = useMemo(
     () => getWorkouts().find((entry) => entry.id === id),
-    [id]
-  )
+    [id],
+  );
 
   if (!workout) {
     return (
@@ -97,27 +97,27 @@ export default function TimerPage() {
             Pick a saved workout to start the timer.
           </p>
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate("/")}
             className="mt-6 w-full rounded-2xl bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-500"
           >
             Back to workouts
           </button>
         </div>
       </div>
-    )
+    );
   }
 
-  return <TimerExperience onExit={() => navigate('/')} workout={workout} />
+  return <TimerExperience onExit={() => navigate("/")} workout={workout} />;
 }
 
 interface TimerExperienceProps {
-  workout: WorkoutConfig
-  onExit: () => void
+  workout: WorkoutConfig;
+  onExit: () => void;
 }
 
 function TimerExperience({ workout, onExit }: TimerExperienceProps) {
   const { playCountdownBeep, playPhaseTransition, primeAudioFromGesture } =
-    useAudio()
+    useAudio();
   const {
     elapsed,
     remaining,
@@ -130,130 +130,130 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
     start,
     pause,
     resume,
-    reset
-  } = useTimer(workout)
-  const previousPhaseRef = useRef<AudioPhase | null>(null)
-  const autostartWorkoutIdRef = useRef<string | null>(null)
-  const lastCountdownVibrationKeyRef = useRef<string | null>(null)
+    reset,
+  } = useTimer(workout);
+  const previousPhaseRef = useRef<AudioPhase | null>(null);
+  const autostartWorkoutIdRef = useRef<string | null>(null);
+  const lastCountdownVibrationKeyRef = useRef<string | null>(null);
 
-  useScreenWakeLock(isRunning)
+  useScreenWakeLock(isRunning);
 
-  const phaseDuration = getPhaseDuration(workout, phase)
-  const phaseProgress = getPhaseProgress(phaseDuration, remaining, phase)
+  const phaseDuration = getPhaseDuration(workout, phase);
+  const phaseProgress = getPhaseProgress(phaseDuration, remaining, phase);
   const overallProgress =
-    phase === 'complete' || totalDuration === 0
+    phase === "complete" || totalDuration === 0
       ? 1
-      : Math.min(elapsed / totalDuration, 1)
-  const accent = PHASE_COLORS[phase]
-  const canReset = isRunning || isPaused || phase === 'complete' || elapsed > 0
+      : Math.min(elapsed / totalDuration, 1);
+  const accent = PHASE_COLORS[phase];
+  const canReset = isRunning || isPaused || phase === "complete" || elapsed > 0;
 
   const triggerVibration = useCallback((pattern: number | number[]) => {
     if (
-      typeof navigator === 'undefined' ||
-      typeof navigator.vibrate !== 'function'
+      typeof navigator === "undefined" ||
+      typeof navigator.vibrate !== "function"
     ) {
-      return
+      return;
     }
 
     if (!getSettings().vibrationEnabled) {
-      return
+      return;
     }
 
-    navigator.vibrate(pattern)
-  }, [])
+    navigator.vibrate(pattern);
+  }, []);
 
   useEffect(() => {
     if (!getSettings().autostart) {
-      return
+      return;
     }
 
     if (
       autostartWorkoutIdRef.current === workout.id ||
       isRunning ||
       isPaused ||
-      phase === 'complete'
+      phase === "complete"
     ) {
-      return
+      return;
     }
 
-    autostartWorkoutIdRef.current = workout.id
-    start()
-  }, [isPaused, isRunning, phase, start, workout.id])
+    autostartWorkoutIdRef.current = workout.id;
+    start();
+  }, [isPaused, isRunning, phase, start, workout.id]);
 
   useEffect(() => {
-    if (!isRunning && phase !== 'complete') {
-      return
+    if (!isRunning && phase !== "complete") {
+      return;
     }
 
-    const previousPhase = previousPhaseRef.current
+    const previousPhase = previousPhaseRef.current;
 
-    playPhaseTransition(previousPhase, phase)
+    playPhaseTransition(previousPhase, phase);
 
     if (previousPhase !== phase) {
-      if (phase === 'complete') {
-        triggerVibration([180, 60, 240])
-      } else if (phase === 'work') {
-        triggerVibration([80, 40, 120])
+      if (phase === "complete") {
+        triggerVibration([180, 60, 240]);
+      } else if (phase === "work") {
+        triggerVibration([80, 40, 120]);
       } else {
-        triggerVibration(90)
+        triggerVibration(90);
       }
     }
 
-    previousPhaseRef.current = phase === 'complete' ? null : phase
-  }, [isRunning, phase, playPhaseTransition, triggerVibration])
+    previousPhaseRef.current = phase === "complete" ? null : phase;
+  }, [isRunning, phase, playPhaseTransition, triggerVibration]);
 
   useEffect(() => {
-    if (!isRunning || phase === 'complete') {
-      return
+    if (!isRunning || phase === "complete") {
+      return;
     }
 
-    playCountdownBeep(phase as AudioPhase, remaining)
+    playCountdownBeep(phase as AudioPhase, remaining);
 
-    const roundedSeconds = Math.ceil(remaining)
+    const roundedSeconds = Math.ceil(remaining);
     if (
       roundedSeconds <= 0 ||
       roundedSeconds > getSettings().countdownSeconds
     ) {
-      lastCountdownVibrationKeyRef.current = null
-      return
+      lastCountdownVibrationKeyRef.current = null;
+      return;
     }
 
-    const countdownKey = `${phase}:${roundedSeconds}`
+    const countdownKey = `${phase}:${roundedSeconds}`;
     if (lastCountdownVibrationKeyRef.current === countdownKey) {
-      return
+      return;
     }
 
-    lastCountdownVibrationKeyRef.current = countdownKey
-    triggerVibration(25)
-  }, [isRunning, phase, playCountdownBeep, remaining, triggerVibration])
+    lastCountdownVibrationKeyRef.current = countdownKey;
+    triggerVibration(25);
+  }, [isRunning, phase, playCountdownBeep, remaining, triggerVibration]);
 
   const handleReset = useCallback(() => {
-    previousPhaseRef.current = null
-    lastCountdownVibrationKeyRef.current = null
-    reset()
-  }, [reset])
+    previousPhaseRef.current = null;
+    lastCountdownVibrationKeyRef.current = null;
+    reset();
+  }, [reset]);
 
   const handlePrimaryAction = useCallback(() => {
-    if (phase === 'complete') {
-      handleReset()
-      return
+    if (phase === "complete") {
+      handleReset();
+      return;
     }
 
     if (isRunning) {
-      pause()
-      return
+      pause();
+      return;
     }
 
     // Prime AudioContext inside the user gesture — on iOS, a context created here
     // starts in "running" state.  Later effects find it active and skip resume.
-    primeAudioFromGesture()
+    primeAudioFromGesture();
 
     if (isPaused) {
-      resume()
-      return
+      resume();
+      return;
     }
 
-    start()
+    start();
   }, [
     handleReset,
     isPaused,
@@ -262,32 +262,32 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
     phase,
     resume,
     start,
-    primeAudioFromGesture
-  ])
+    primeAudioFromGesture,
+  ]);
 
   const primaryLabel =
-    phase === 'complete'
-      ? 'Start again'
+    phase === "complete"
+      ? "Start again"
       : isRunning
-        ? 'Pause'
+        ? "Pause"
         : isPaused
-          ? 'Resume'
-          : 'Start'
+          ? "Resume"
+          : "Start";
   useEffect(() => {
     const isTypingField = (target: EventTarget | null): boolean => {
       if (!(target instanceof HTMLElement)) {
-        return false
+        return false;
       }
 
       return (
         target.isContentEditable ||
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.tagName === 'SELECT' ||
-        target.tagName === 'BUTTON' ||
-        target.tagName === 'A'
-      )
-    }
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.tagName === "SELECT" ||
+        target.tagName === "BUTTON" ||
+        target.tagName === "A"
+      );
+    };
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (
@@ -295,33 +295,33 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
         event.repeat ||
         isTypingField(event.target)
       ) {
-        return
+        return;
       }
 
-      if (event.code === 'Space') {
-        event.preventDefault()
-        handlePrimaryAction()
-        return
+      if (event.code === "Space") {
+        event.preventDefault();
+        handlePrimaryAction();
+        return;
       }
 
-      if (event.key.toLowerCase() === 'r') {
-        event.preventDefault()
-        handleReset()
-        return
+      if (event.key.toLowerCase() === "r") {
+        event.preventDefault();
+        handleReset();
+        return;
       }
 
-      if (event.key === 'Escape') {
-        event.preventDefault()
-        onExit()
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onExit();
       }
-    }
+    };
 
-    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [handlePrimaryAction, handleReset, onExit])
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handlePrimaryAction, handleReset, onExit]);
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
@@ -346,7 +346,7 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
           style={{
             background: accent
               ? `radial-gradient(circle at 50% -20%, ${accent}3a, rgba(9,9,11,0.8) 62%), #18181bca`
-              : undefined
+              : undefined,
           }}
         >
           <button
@@ -361,11 +361,11 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
             onClick={handlePrimaryAction}
             aria-label={primaryLabel}
             className={`absolute right-4 top-4 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-white transition active:scale-[0.97] ${
-              phase === 'complete'
-                ? 'bg-emerald-500 hover:bg-emerald-400'
+              phase === "complete"
+                ? "bg-emerald-500 hover:bg-emerald-400"
                 : isRunning
-                  ? 'bg-amber-500 hover:bg-amber-400'
-                  : 'bg-blue-600 hover:bg-blue-500'
+                  ? "bg-amber-500 hover:bg-amber-400"
+                  : "bg-blue-600 hover:bg-blue-500"
             }`}
           >
             {isRunning ? <PauseIcon /> : <PlayIcon />}
@@ -376,7 +376,7 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
               progress={phaseProgress}
               phase={phase}
               label={`${primaryLabel} — ${PHASE_LABELS[phase]} phase, ${Math.round(phaseProgress * 100)} percent complete`}
-              onClick={phase !== 'complete' ? handlePrimaryAction : undefined}
+              onClick={phase !== "complete" ? handlePrimaryAction : undefined}
             >
               <TimerDisplay
                 phase={phase}
@@ -392,8 +392,8 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
             <div
               className="h-full rounded-full transition-all duration-700 ease-out"
               style={{
-                width: `${Math.max(overallProgress * 100, phase === 'complete' ? 100 : 0)}%`,
-                backgroundColor: accent
+                width: `${Math.max(overallProgress * 100, phase === "complete" ? 100 : 0)}%`,
+                backgroundColor: accent,
               }}
             />
           </div>
@@ -408,7 +408,7 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
             label="Cycle"
             value={`${Math.min(cycle, workout.cycles)} / ${workout.cycles}`}
             detail={
-              phase === 'restBetweenCycles' ? 'Between cycles' : 'Current cycle'
+              phase === "restBetweenCycles" ? "Between cycles" : "Current cycle"
             }
             accent={PHASE_COLORS.cooldown}
           />
@@ -416,9 +416,9 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
             label="Round"
             value={`${Math.min(round, workout.rounds)} / ${workout.rounds}`}
             detail={
-              phase === 'restBetweenCycles'
-                ? 'Last round complete'
-                : 'Current round'
+              phase === "restBetweenCycles"
+                ? "Last round complete"
+                : "Current round"
             }
             accent={PHASE_COLORS.work}
           />
@@ -426,8 +426,8 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
             label="Current phase"
             value={PHASE_LABELS[phase]}
             detail={
-              phase === 'complete'
-                ? 'All intervals finished'
+              phase === "complete"
+                ? "All intervals finished"
                 : `${formatCompactDuration(remaining)} left`
             }
             accent={accent}
@@ -455,19 +455,19 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
               label="Prepare"
               value={formatCompactDuration(workout.prepare)}
               accent={PHASE_COLORS.prepare}
-              isActive={phase === 'prepare'}
+              isActive={phase === "prepare"}
             />
             <PhaseBlock
               label="Work"
               value={formatCompactDuration(workout.work)}
               accent={PHASE_COLORS.work}
-              isActive={phase === 'work'}
+              isActive={phase === "work"}
             />
             <PhaseBlock
               label="Rest"
               value={formatCompactDuration(workout.rest)}
               accent={PHASE_COLORS.rest}
-              isActive={phase === 'rest' || phase === 'restBetweenCycles'}
+              isActive={phase === "rest" || phase === "restBetweenCycles"}
               detail={
                 workout.cycles > 1
                   ? `Cycle rest ${formatCompactDuration(workout.restBetweenCycles)}`
@@ -478,13 +478,13 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
               label="Cooldown"
               value={formatCompactDuration(workout.cooldown)}
               accent={PHASE_COLORS.cooldown}
-              isActive={phase === 'cooldown'}
+              isActive={phase === "cooldown"}
             />
           </div>
         </div>
 
         <div className="mt-auto pt-6">
-          {phase === 'complete' ? (
+          {phase === "complete" ? (
             <div className="mb-4 rounded-3xl border border-emerald-400/20 bg-emerald-500/10 p-4 text-center">
               <p className="text-sm font-semibold uppercase tracking-[0.24em] text-emerald-300">
                 Complete
@@ -497,5 +497,5 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { getWorkouts } from '../store/workoutStore'
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { getWorkouts } from "../store/workoutStore";
 
-import WorkoutCard from '../components/WorkoutCard'
+import WorkoutCard from "../components/WorkoutCard";
 
 function SettingsIcon() {
   return (
@@ -20,7 +20,7 @@ function SettingsIcon() {
       <circle cx="12" cy="12" r="3" />
       <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l.06.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l.06.06a2 2 0 1 1-2.83-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82L4.21 7.2a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
     </svg>
-  )
+  );
 }
 
 function PlusIcon() {
@@ -38,40 +38,40 @@ function PlusIcon() {
     >
       <path d="M12 5v14M5 12h14" />
     </svg>
-  )
+  );
 }
 
 export default function HomePage() {
-  const navigate = useNavigate()
-  const [, setRefresh] = useState(0)
+  const navigate = useNavigate();
+  const [, setRefresh] = useState(0);
 
   // Re-render when coming back from another route (React Router re-mounts the component,
   // but bfcache restore on Safari iOS keeps the old instance — this catches that)
   useEffect(() => {
-    const handlePageshow = () => setRefresh((r) => r + 1)
-    window.addEventListener('pageshow', handlePageshow)
-    return () => window.removeEventListener('pageshow', handlePageshow)
-  }, [])
+    const handlePageshow = () => setRefresh((r) => r + 1);
+    window.addEventListener("pageshow", handlePageshow);
+    return () => window.removeEventListener("pageshow", handlePageshow);
+  }, []);
 
   // Re-render when another tab modifies the store
   useEffect(() => {
-    const notify = () => setRefresh((r) => r + 1)
-    window.addEventListener('storage', notify)
+    const notify = () => setRefresh((r) => r + 1);
+    window.addEventListener("storage", notify);
     const handleMessage = (e: MessageEvent) => {
-      if (e.data?.type === '__workouts_changed') notify()
-    }
-    window.addEventListener('message', handleMessage)
+      if (e.data?.type === "__workouts_changed") notify();
+    };
+    window.addEventListener("message", handleMessage);
     return () => {
-      window.removeEventListener('storage', notify)
-      window.removeEventListener('message', handleMessage)
-    }
-  }, [])
+      window.removeEventListener("storage", notify);
+      window.removeEventListener("message", handleMessage);
+    };
+  }, []);
 
-  const workoutsList = getWorkouts()
+  const workoutsList = getWorkouts();
 
   const handleWorkoutDeleted = useCallback(() => {
-    setRefresh((r) => r + 1)
-  }, [])
+    setRefresh((r) => r + 1);
+  }, []);
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
@@ -86,12 +86,12 @@ export default function HomePage() {
             </h1>
             <p className="mt-2 text-sm text-zinc-500">
               {workoutsList.length === 0
-                ? 'No workouts saved'
+                ? "No workouts saved"
                 : `${workoutsList.length} saved`}
             </p>
           </div>
           <button
-            onClick={() => navigate('/settings')}
+            onClick={() => navigate("/settings")}
             className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/10"
           >
             <SettingsIcon />
@@ -112,7 +112,7 @@ export default function HomePage() {
               intervals.
             </p>
             <button
-              onClick={() => navigate('/workout/new')}
+              onClick={() => navigate("/workout/new")}
               className="mt-5 inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-500 active:scale-[0.99]"
             >
               <PlusIcon />
@@ -134,7 +134,7 @@ export default function HomePage() {
         {workoutsList.length > 0 && (
           <div className="mt-auto pt-6">
             <button
-              onClick={() => navigate('/workout/new')}
+              onClick={() => navigate("/workout/new")}
               className="flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-500 active:scale-[0.99]"
             >
               <PlusIcon />
@@ -144,5 +144,5 @@ export default function HomePage() {
         )}
       </div>
     </div>
-  )
+  );
 }

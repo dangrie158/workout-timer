@@ -1,15 +1,15 @@
-import type { ReactNode } from 'react'
-import { PHASE_COLORS } from '../utils/timerUi'
-import type { TimerPhase } from '../types'
+import type { ReactNode } from "react";
+import { PHASE_COLORS } from "../utils/timerUi";
+import type { TimerPhase } from "../types";
 
 interface ProgressRingProps {
-  progress: number
-  phase: TimerPhase
-  size?: number
-  strokeWidth?: number
-  label: string
-  onClick?: () => void
-  children?: ReactNode
+  progress: number;
+  phase: TimerPhase;
+  size?: number;
+  strokeWidth?: number;
+  label: string;
+  onClick?: () => void;
+  children?: ReactNode;
 }
 
 export default function ProgressRing({
@@ -19,12 +19,12 @@ export default function ProgressRing({
   strokeWidth = 18,
   label,
   onClick,
-  children
+  children,
 }: ProgressRingProps) {
-  const safeProgress = Math.min(1, Math.max(0, progress))
-  const radius = (size - strokeWidth) / 2
-  const circumference = 2 * Math.PI * radius
-  const dashOffset = circumference * (1 - safeProgress)
+  const safeProgress = Math.min(1, Math.max(0, progress));
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const dashOffset = circumference * (1 - safeProgress);
 
   const Inner = (
     <>
@@ -63,7 +63,7 @@ export default function ProgressRing({
         </div>
       </div>
     </>
-  )
+  );
 
   if (onClick) {
     return (
@@ -75,7 +75,7 @@ export default function ProgressRing({
       >
         {Inner}
       </button>
-    )
+    );
   }
 
   return (
@@ -85,5 +85,5 @@ export default function ProgressRing({
     >
       {Inner}
     </div>
-  )
+  );
 }

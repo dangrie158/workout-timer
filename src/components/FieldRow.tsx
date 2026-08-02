@@ -1,24 +1,24 @@
-import { useState, useMemo } from 'react'
-import NumberPicker from './NumberPicker'
-import DurationPicker from './DurationPicker'
-import { PHASE_COLORS } from '../utils/timerUi'
+import { useState, useMemo } from "react";
+import NumberPicker from "./NumberPicker";
+import DurationPicker from "./DurationPicker";
+import { PHASE_COLORS } from "../utils/timerUi";
 
 interface FieldRowProps {
-  label: string
+  label: string;
   /** Phase key for accent color. Optional for non-phase config fields. */
-  color?: keyof typeof PHASE_COLORS
-  value: number
-  displayValue?: string
-  onChange: (value: number) => void
+  color?: keyof typeof PHASE_COLORS;
+  value: number;
+  displayValue?: string;
+  onChange: (value: number) => void;
   /** Custom accent color when `color` is not set. Overrides the phase lookup if both are provided. */
-  customAccent?: string
-  min?: number
-  max?: number
+  customAccent?: string;
+  min?: number;
+  max?: number;
   /** When true, renders a DurationPicker with minute+second scrollers instead of NumberPicker.
    * The value prop still represents total seconds; onChange receives total seconds on confirm. */
-  useDurationPicker?: boolean
+  useDurationPicker?: boolean;
   /** Maximum minutes shown in the minute scroller (defaults to max / 60 when useDurationPicker is true). */
-  maxMinutes?: number
+  maxMinutes?: number;
 }
 
 export default function FieldRow({
@@ -31,40 +31,40 @@ export default function FieldRow({
   min = 0,
   max = 3600,
   useDurationPicker = false,
-  maxMinutes: propMaxMins
+  maxMinutes: propMaxMins,
 }: FieldRowProps) {
-  const [isPickerOpen, setIsPickerOpen] = useState(false)
-  const accent = color ? PHASE_COLORS[color] : customAccent
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const accent = color ? PHASE_COLORS[color] : customAccent;
 
   // Duration picker state
-  const dMins = Math.floor(value / 60)
-  const dSecs = value % 60
+  const dMins = Math.floor(value / 60);
+  const dSecs = value % 60;
   const maxMinutes =
-    propMaxMins ?? (useDurationPicker ? Math.floor(max / 60) : undefined)
+    propMaxMins ?? (useDurationPicker ? Math.floor(max / 60) : undefined);
 
   // Default display: mm:ss with 2 digits when ≥60s, plain ss otherwise
   const durationDisplay = useMemo(() => {
-    if (displayValue) return null
-    const m = Math.floor(value / 60)
-    const s = value % 60
+    if (displayValue) return null;
+    const m = Math.floor(value / 60);
+    const s = value % 60;
     return m > 0
-      ? `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
-      : String(s)
-  }, [value, displayValue])
+      ? `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
+      : String(s);
+  }, [value, displayValue]);
 
   // Picker-modal display: always MM:SS (two wheels, so full format is clearer)
   const pickerDisplay = useMemo(() => {
-    if (!useDurationPicker || displayValue) return null
-    return `${String(dMins).padStart(2, '0')}:${String(dSecs).padStart(2, '0')}`
-  }, [dMins, dSecs, useDurationPicker, displayValue])
+    if (!useDurationPicker || displayValue) return null;
+    return `${String(dMins).padStart(2, "0")}:${String(dSecs).padStart(2, "0")}`;
+  }, [dMins, dSecs, useDurationPicker, displayValue]);
 
   const handleDurationChange = (minsStr: string, secsStr: string) => {
-    const m = parseInt(minsStr, 10)
-    const s = parseInt(secsStr, 10)
+    const m = parseInt(minsStr, 10);
+    const s = parseInt(secsStr, 10);
     if (!isNaN(m) && !isNaN(s)) {
-      onChange(m * 60 + s)
+      onChange(m * 60 + s);
     }
-  }
+  };
 
   return (
     <>
@@ -79,7 +79,7 @@ export default function FieldRow({
           />
         ) : null}
 
-        <div className={`flex-1 text-left ${accent ? 'pl-3' : ''}`}>
+        <div className={`flex-1 text-left ${accent ? "pl-3" : ""}`}>
           <div className="text-sm text-zinc-400">{label}</div>
           <div className="text-lg font-medium text-white">
             {displayValue ?? pickerDisplay ?? durationDisplay}
@@ -124,5 +124,5 @@ export default function FieldRow({
         />
       )}
     </>
-  )
+  );
 }

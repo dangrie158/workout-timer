@@ -1,15 +1,15 @@
-import { fireEvent, render, screen, act } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import NumberPicker from './NumberPicker'
+import { fireEvent, render, screen, act } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import NumberPicker from "./NumberPicker";
 
-describe('NumberPicker', () => {
+describe("NumberPicker", () => {
   beforeEach(() => {
-    vi.useFakeTimers()
-  })
+    vi.useFakeTimers();
+  });
 
-  it('scrolls like a wheel and confirms the selected value', async () => {
-    const onChange = vi.fn()
-    const onClose = vi.fn()
+  it("scrolls like a wheel and confirms the selected value", async () => {
+    const onChange = vi.fn();
+    const onClose = vi.fn();
 
     render(
       <NumberPicker
@@ -20,33 +20,33 @@ describe('NumberPicker', () => {
         onClose={onClose}
         min={0}
         max={60}
-      />
-    )
+      />,
+    );
 
     await act(async () => {
-      vi.advanceTimersByTime(20)
-    })
+      vi.advanceTimersByTime(20);
+    });
 
-    const listbox = screen.getByRole('listbox', { name: 'Prepare wheel' })
-    expect(screen.getByText('30s selected')).toBeInTheDocument()
+    const listbox = screen.getByRole("listbox", { name: "Prepare wheel" });
+    expect(screen.getByText("30s selected")).toBeInTheDocument();
 
     act(() => {
       fireEvent.scroll(listbox, {
         target: {
-          scrollTop: (61 + 41) * 48
-        }
-      })
-    })
+          scrollTop: (61 + 41) * 48,
+        },
+      });
+    });
 
-    expect(screen.getByText('41s selected')).toBeInTheDocument()
+    expect(screen.getByText("41s selected")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
+    fireEvent.click(screen.getByRole("button", { name: "Confirm" }));
 
-    expect(onChange).toHaveBeenCalledWith(41)
-    expect(onClose).toHaveBeenCalledTimes(1)
-  })
+    expect(onChange).toHaveBeenCalledWith(41);
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
 
   afterEach(() => {
-    vi.useRealTimers()
-  })
-})
+    vi.useRealTimers();
+  });
+});

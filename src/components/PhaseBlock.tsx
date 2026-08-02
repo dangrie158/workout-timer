@@ -1,11 +1,11 @@
-import type { ReactNode } from 'react'
+import type { ReactNode } from "react";
 
 interface PhaseBlockProps {
-  label: string
-  value: ReactNode
-  detail?: ReactNode
-  accent: string
-  isActive?: boolean
+  label: string;
+  value: ReactNode;
+  detail?: ReactNode;
+  accent: string;
+  isActive?: boolean;
 }
 
 export default function PhaseBlock({
@@ -13,19 +13,19 @@ export default function PhaseBlock({
   value,
   detail,
   accent,
-  isActive = false
+  isActive = false,
 }: PhaseBlockProps) {
   return (
     <div
       className={`relative overflow-hidden rounded-2xl p-4 transition-all ${
         isActive
-          ? 'border border-white/15 shadow-[0_14px_40px_rgba(0,0,0,0.28)]'
-          : 'border border-white/5'
+          ? "border border-white/15 shadow-[0_14px_40px_rgba(0,0,0,0.28)]"
+          : "border border-white/5"
       }`}
       style={
         accent
           ? {
-              background: `radial-gradient(circle at 50% -20%, ${accent}1a, rgba(9,9,11,0.8) 62%), ${isActive ? '#27272ae6' : '#18181bca'}`
+              background: `radial-gradient(circle at 50% -20%, ${accent}1a, rgba(9,9,11,0.8) 62%), ${isActive ? "#27272ae6" : "#18181bca"}`,
             }
           : undefined
       }
@@ -46,5 +46,5 @@ export default function PhaseBlock({
         <div className="relative z-10 mt-1 text-sm text-zinc-400">{detail}</div>
       ) : null}
     </div>
-  )
+  );
 }

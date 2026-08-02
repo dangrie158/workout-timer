@@ -1,18 +1,18 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from "react";
 
 interface DurationPickerProps {
-  isOpen: boolean
-  title: string
-  totalSeconds: number
-  maxMinutes: number
+  isOpen: boolean;
+  title: string;
+  totalSeconds: number;
+  maxMinutes: number;
   /** Called with [minutes, seconds] when user taps Confirm. Total seconds = m * 60 + s. */
-  onMinsChange: (minutes: number, seconds: number) => void
-  onClose: () => void
+  onMinsChange: (minutes: number, seconds: number) => void;
+  onClose: () => void;
 }
 
-const ITEM_HEIGHT = 48
-const PADDING_ITEMS = 2
-const REPEAT_COPIES = 3
+const ITEM_HEIGHT = 48;
+const PADDING_ITEMS = 2;
+const REPEAT_COPIES = 3;
 
 export default function DurationPicker({
   isOpen,
@@ -20,94 +20,95 @@ export default function DurationPicker({
   totalSeconds,
   maxMinutes,
   onMinsChange,
-  onClose
+  onClose,
 }: DurationPickerProps) {
-  const [mins, setMins] = useState(0)
-  const [secs, setSecs] = useState(0)
-  const minsRef = useRef<HTMLDivElement | null>(null)
-  const secsRef = useRef<HTMLDivElement | null>(null)
+  const [mins, setMins] = useState(0);
+  const [secs, setSecs] = useState(0);
+  const minsRef = useRef<HTMLDivElement | null>(null);
+  const secsRef = useRef<HTMLDivElement | null>(null);
 
   const minsValues = useMemo(
     () => Array.from({ length: maxMinutes + 1 }, (_, i) => i),
-    [maxMinutes]
-  )
-  const secsValues = useMemo(() => Array.from({ length: 60 }, (_, i) => i), [])
+    [maxMinutes],
+  );
+  const secsValues = useMemo(() => Array.from({ length: 60 }, (_, i) => i), []);
 
   const repeatedMins = useMemo(
     () => Array.from({ length: REPEAT_COPIES }, () => minsValues).flat(),
-    [minsValues]
-  )
+    [minsValues],
+  );
   const repeatedSecs = useMemo(
     () => Array.from({ length: REPEAT_COPIES }, () => secsValues).flat(),
-    [secsValues]
-  )
+    [secsValues],
+  );
 
   const scrollToWheel = (
     el: HTMLElement | null,
     value: number,
-    middleStartFn: () => number
+    middleStartFn: () => number,
   ) => {
-    if (!el) return
+    if (!el) return;
     el.scrollTop =
-      (middleStartFn() + Math.max(0, Math.min(value, maxMinutes))) * ITEM_HEIGHT
-  }
+      (middleStartFn() + Math.max(0, Math.min(value, maxMinutes))) *
+      ITEM_HEIGHT;
+  };
 
   useEffect(() => {
-    if (!isOpen) return
+    if (!isOpen) return;
 
-    const m = Math.min(Math.floor(totalSeconds / 60), maxMinutes)
-    const s = totalSeconds % 60
-    setMins(m)
-    setSecs(s)
+    const m = Math.min(Math.floor(totalSeconds / 60), maxMinutes);
+    const s = totalSeconds % 60;
+    setMins(m);
+    setSecs(s);
 
     setTimeout(() => {
-      scrollToWheel(minsRef.current, m, () => minsValues.length)
-      scrollToWheel(secsRef.current, s, () => secsValues.length)
-    }, 16)
-  }, [isOpen, totalSeconds])
+      scrollToWheel(minsRef.current, m, () => minsValues.length);
+      scrollToWheel(secsRef.current, s, () => secsValues.length);
+    }, 16);
+  }, [isOpen, totalSeconds]);
 
   useEffect(() => {
-    document.body.style.overflow = isOpen ? 'hidden' : ''
+    document.body.style.overflow = isOpen ? "hidden" : "";
     return () => {
-      document.body.style.overflow = ''
-    }
-  }, [isOpen])
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
-  const handleScroll = (type: 'min' | 'sec') => () => {
-    const el = type === 'min' ? minsRef.current : secsRef.current
-    const values = type === 'min' ? minsValues : secsValues
-    const maxVal = type === 'min' ? maxMinutes : 59
-    const setVal = type === 'min' ? setMins : setSecs
+  const handleScroll = (type: "min" | "sec") => () => {
+    const el = type === "min" ? minsRef.current : secsRef.current;
+    const values = type === "min" ? minsValues : secsValues;
+    const maxVal = type === "min" ? maxMinutes : 59;
+    const setVal = type === "min" ? setMins : setSecs;
 
-    if (!el) return
+    if (!el) return;
 
-    const rawIndex = Math.round(el.scrollTop / ITEM_HEIGHT)
+    const rawIndex = Math.round(el.scrollTop / ITEM_HEIGHT);
     const normalizedIndex =
-      ((rawIndex % values.length) + values.length) % values.length
-    const nextValue = Math.min(normalizedIndex, maxVal)
+      ((rawIndex % values.length) + values.length) % values.length;
+    const nextValue = Math.min(normalizedIndex, maxVal);
 
-    setVal((current) => (current === nextValue ? current : nextValue))
+    setVal((current) => (current === nextValue ? current : nextValue));
 
     const msFn =
-      type === 'min' ? () => minsValues.length : () => secsValues.length
-    const lowerBound = msFn() * ITEM_HEIGHT
-    const upperBound = msFn() * 2 * ITEM_HEIGHT
+      type === "min" ? () => minsValues.length : () => secsValues.length;
+    const lowerBound = msFn() * ITEM_HEIGHT;
+    const upperBound = msFn() * 2 * ITEM_HEIGHT;
 
     if (el.scrollTop < lowerBound) {
-      el.scrollTop += values.length * ITEM_HEIGHT
+      el.scrollTop += values.length * ITEM_HEIGHT;
     } else if (el.scrollTop > upperBound) {
-      el.scrollTop -= values.length * ITEM_HEIGHT
+      el.scrollTop -= values.length * ITEM_HEIGHT;
     }
-  }
+  };
 
   const handleConfirm = () => {
-    onMinsChange(mins, secs)
-    onClose()
-  }
+    onMinsChange(mins, secs);
+    onClose();
+  };
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
-  const display = `${mins}:${String(secs).padStart(2, '0')}`
+  const display = `${mins}:${String(secs).padStart(2, "0")}`;
 
   return (
     <>
@@ -136,27 +137,27 @@ export default function DurationPicker({
                   ref={minsRef}
                   role="listbox"
                   aria-label="Minutes wheel"
-                  onScroll={handleScroll('min')}
+                  onScroll={handleScroll("min")}
                   className="no-scrollbar max-h-[240px] overflow-y-auto rounded-3xl snap-y snap-mandatory"
                   style={{
                     paddingTop: PADDING_ITEMS * ITEM_HEIGHT,
-                    paddingBottom: PADDING_ITEMS * ITEM_HEIGHT
+                    paddingBottom: PADDING_ITEMS * ITEM_HEIGHT,
                   }}
                 >
                   {repeatedMins.map((v, index) => {
-                    const isSelected = mins === v
+                    const isSelected = mins === v;
                     return (
                       <div
                         key={index}
                         role="option"
                         aria-selected={isSelected}
                         className={`h-12 snap-center flex items-center justify-center text-2xl font-semibold transition ${
-                          isSelected ? 'text-white' : 'text-zinc-500'
+                          isSelected ? "text-white" : "text-zinc-500"
                         }`}
                       >
-                        {String(v).padStart(2, '0')}
+                        {String(v).padStart(2, "0")}
                       </div>
-                    )
+                    );
                   })}
                 </div>
               </div>
@@ -175,27 +176,27 @@ export default function DurationPicker({
                   ref={secsRef}
                   role="listbox"
                   aria-label="Seconds wheel"
-                  onScroll={handleScroll('sec')}
+                  onScroll={handleScroll("sec")}
                   className="no-scrollbar max-h-[240px] overflow-y-auto rounded-3xl snap-y snap-mandatory"
                   style={{
                     paddingTop: PADDING_ITEMS * ITEM_HEIGHT,
-                    paddingBottom: PADDING_ITEMS * ITEM_HEIGHT
+                    paddingBottom: PADDING_ITEMS * ITEM_HEIGHT,
                   }}
                 >
                   {repeatedSecs.map((v, index) => {
-                    const isSelected = secs === v
+                    const isSelected = secs === v;
                     return (
                       <div
                         key={index}
                         role="option"
                         aria-selected={isSelected}
                         className={`h-12 snap-center flex items-center justify-center text-2xl font-semibold transition ${
-                          isSelected ? 'text-white' : 'text-zinc-500'
+                          isSelected ? "text-white" : "text-zinc-500"
                         }`}
                       >
-                        {String(v).padStart(2, '0')}
+                        {String(v).padStart(2, "0")}
                       </div>
-                    )
+                    );
                   })}
                 </div>
               </div>
@@ -225,5 +226,5 @@ export default function DurationPicker({
         </div>
       </div>
     </>
-  )
+  );
 }
