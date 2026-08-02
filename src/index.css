@@ -8,18 +8,17 @@ html, body, #root {
   margin: 0;
   padding: 0;
   background-color: #000000;
-  overflow: hidden;
 }
 
 body {
-  min-height: 100vh;
   min-height: 100dvh;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
 }
 
 #root {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
   min-height: 100dvh;
   /* Account for safe areas on notched devices */
   padding-top: max(0px, env(safe-area-inset-top));
