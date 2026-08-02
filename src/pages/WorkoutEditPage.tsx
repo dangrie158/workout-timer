@@ -171,7 +171,7 @@ export default function WorkoutEditPage() {
       </div>
 
       {/* Summary info */}
-      <div className="mt-6 mx-4 mb-20 p-4 rounded-lg bg-zinc-800/50 border border-zinc-700">
+      <div className="mt-6 mx-4 mb-8 p-4 rounded-lg bg-zinc-800/50 border border-zinc-700">
         <h3 className="text-sm font-semibold text-zinc-300 mb-2">Workout Summary</h3>
         <div className="text-xs text-zinc-400 space-y-1">
           <div>
@@ -193,7 +193,7 @@ export default function WorkoutEditPage() {
       </div>
 
       {/* Action buttons */}
-      <div className="sticky bottom-0 left-0 right-0 z-20 flex gap-3 border-t border-zinc-700 bg-zinc-900 px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+      <div className="sticky bottom-0 left-0 right-0 z-20 flex gap-3 border-t border-zinc-700 bg-zinc-900 px-4 pt-4 pb-8">
         <button
           onClick={() => navigate('/')}
           className="flex-1 px-4 py-3 rounded-lg bg-zinc-800 text-white font-medium hover:bg-zinc-700 active:bg-zinc-600 transition-colors"
