@@ -6,10 +6,11 @@ import { PHASE_COLORS } from '../utils/timerUi'
 
 function SectionCard({ title, children, accent }: { title: string; children: React.ReactNode; accent?: string }) {
   return (
-    <div className="rounded-[2rem] border border-white/10 bg-zinc-900/80 shadow-xl shadow-black/25 mt-4 overflow-hidden">
-      {accent ? (
-        <div className="h-[3px] bg-gradient-to-r from-[color:var(--c)] to-transparent" style={{ '--c': accent } as React.CSSProperties} />
-      ) : null}
+    <div className="rounded-[2rem] border border-white/10 shadow-xl shadow-black/25 mt-4 overflow-hidden"
+      style={accent
+        ? { background: `radial-gradient(circle at 50% -20%, ${accent}26, #18181bcc 62%), #18181b`, border: 'border-white/10' }
+        : undefined
+      }>
       <div className={accent ? 'pt-4' : ''}>
         <h2 className="mb-4 px-5 text-sm font-semibold uppercase tracking-[0.24em] text-zinc-500">{title}</h2>
         {children}
@@ -20,16 +21,17 @@ function SectionCard({ title, children, accent }: { title: string; children: Rea
 
 function StatCell({ label, value, accent }: { label: string; value: string; accent?: string }) {
   return (
-    <div className="rounded-xl border border-white/5 bg-zinc-950/60 overflow-hidden">
-      {accent ? (
-        <div className="h-[3px] w-full bg-gradient-to-r from-[color:var(--c)] to-transparent" style={{ '--c': accent } as React.CSSProperties} />
-      ) : null}
+    <div className="rounded-xl border border-white/5 overflow-hidden"
+      style={accent
+        ? { background: `radial-gradient(circle at 50% -20%, ${accent}18, #18181b 62%), #09090b` }
+        : undefined
+      }>
       <div className="px-3 py-3">
         <div className="mb-1 flex items-center gap-1.5">
           {accent ? (
-            <span className="h-[3px] w-3 rounded-full" style={{ backgroundColor: accent }} />
+            <span className="h-[3px] w-4 rounded-full" style={{ backgroundColor: accent }} />
           ) : (
-            <span className="h-[3px] w-3 rounded-full bg-zinc-600" />
+            <span className="h-[3px] w-4 shrink-0 rounded-full bg-zinc-600" />
           )}
           <span className="text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-zinc-500">{label}</span>
         </div>

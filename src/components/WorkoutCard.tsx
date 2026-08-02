@@ -96,11 +96,22 @@ export default function WorkoutCard({ workout, onDelete }: WorkoutCardProps) {
   }
 
   return (
-    <div className="rounded-[2rem] border border-white/10 bg-zinc-900/80 shadow-xl shadow-black/25 transition hover:bg-zinc-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-400 active:scale-[0.995] overflow-hidden"
-      style={{ background: `radial-gradient(circle at 50% -20%, ${accent}26, #0b0b0be5 62%), #18181b` }}
-    >
+    <div className="rounded-[2rem] border border-white/10 bg-zinc-900/80 shadow-xl shadow-black/25 transition hover:bg-zinc-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-400 active:scale-[0.995] overflow-hidden">
 
-      <div className="flex items-start justify-between px-5 pt-4 pb-3">
+      {/* Fixed-size top glow */}
+      <div className="absolute inset-x-0 top-0 h-28 flex items-center justify-center pointer-events-none">
+        <svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg" className="opacity-[0.22]">
+          <defs>
+            <radialGradient id="cardGlow" cx="50%" cy="40%" r="50%">
+              <stop offset="0%" stopColor={accent} />
+              <stop offset="100%" stopColor="transparent" />
+            </radialGradient>
+          </defs>
+          <circle cx="80" cy="80" r="70" fill="url(#cardGlow)" />
+        </svg>
+      </div>
+
+      <div className="relative flex items-start justify-between px-5 pt-4 pb-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-zinc-500">Workout</p>
           <h2 className="mt-1 text-xl font-semibold text-white">{workout.name}</h2>
