@@ -1,16 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useCallback, useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getWorkouts, createWorkout, updateWorkout } from '../store/workoutStore'
 import FieldRow from '../components/FieldRow'
 import { PHASE_COLORS } from '../utils/timerUi'
 
-function SectionCard({ title, children, accent }: { title: string; children: React.ReactNode; accent?: string }) {
+function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-[2rem] border border-white/10 shadow-xl shadow-black/25 mt-4 overflow-hidden"
-      style={accent
-        ? { background: `radial-gradient(circle at 50% -20%, ${accent}26, #18181bcc 62%), #18181b`, border: 'border-white/10' }
-        : undefined
-      }>
+    <div className="rounded-[2rem] border border-white/10 shadow-xl shadow-black/25 mt-4 overflow-hidden">
       <div className="pt-4">
         <h2 className="mb-4 px-5 text-sm font-semibold uppercase tracking-[0.24em] text-zinc-500">{title}</h2>
         {children}
@@ -55,8 +51,9 @@ export default function WorkoutEditPage() {
   const [cooldown, setCooldown] = useState(30)
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(true)
+  const [hasChanges, setHasChanges] = useState(false)
 
-  // Load existing workout if editing
+  // Load existing workout if editing (also handles bfcache restore)
   useEffect(() => {
     if (id) {
       const workouts = getWorkouts()
@@ -74,6 +71,62 @@ export default function WorkoutEditPage() {
     }
     setIsLoading(false)
   }, [id])
+
+  // Catch bfcache restore of WorkoutEditPage — re-read form values from store
+  useEffect(() => {
+    const handlePageshow = () => {
+      if (id) {
+        const workouts = getWorkouts()
+        const workout = workouts.find((w) => w.id === id)
+        if (workout) {
+          setName(workout.name)
+          setPrepare(workout.prepare)
+          setWork(workout.work)
+          setRest(workout.rest)
+          setRounds(workout.rounds)
+          setCycles(workout.cycles)
+          setRestBetweenCycles(workout.restBetweenCycles)
+          setCooldown(workout.cooldown)
+        }
+      } else {
+        setName('')
+        setPrepare(30)
+        setWork(60)
+        setRest(30)
+        setRounds(5)
+        setCycles(1)
+        setRestBetweenCycles(60)
+        setCooldown(30)
+      }
+    }
+    window.addEventListener('pageshow', handlePageshow)
+    return () => window.removeEventListener('pageshow', handlePageshow)
+  }, [id])
+
+  // Warn before leaving if there are unsaved changes
+  const navigateAway = useCallback((dest: string) => {
+    if (hasChanges) {
+      const confirmed = window.confirm('Unsaved changes. Leave without saving?')
+      if (!confirmed) return false
+    }
+    navigate(dest)
+    return true
+  }, [hasChanges, navigate])
+
+  const markChanged = useCallback(() => {
+    setHasChanges(true)
+  }, [])
+
+  // Browser-level warning (tab close, address bar navigation, back button past this page)
+  useEffect(() => {
+    if (!hasChanges) return
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = ''
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [hasChanges])
 
   const handleSave = () => {
     if (!name.trim()) {
@@ -98,6 +151,11 @@ export default function WorkoutEditPage() {
       } else {
         createWorkout(workoutData)
       }
+
+      setHasChanges(false)
+
+      // Notify other pages in the same tab (storage event doesn't fire on originating tab)
+      window.postMessage({ type: '__workouts_changed' }, '*')
 
       navigate('/')
     } catch (err) {
@@ -131,7 +189,7 @@ export default function WorkoutEditPage() {
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigateAway('/')}
             className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/10">
             ← Workouts
           </button>
@@ -153,28 +211,28 @@ export default function WorkoutEditPage() {
             id="workout-name"
             type="text"
             value={name}
-            onChange={(e) => { setName(e.target.value); setError('') }}
+            onChange={(e) => { setName(e.target.value); setError(''); markChanged() }}
             placeholder="e.g., HIIT Workout"
             className="mt-3 w-full px-4 py-3 rounded-xl bg-zinc-800/60 border border-white/10 text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           />
         </div>
 
         {/* Structure — rounds, cycles */}
-        <SectionCard title="Structure" accent="#8B5CF6">
+        <SectionCard title="Structure">
           <div className="divide-y divide-zinc-700">
-            <FieldRow label="Rounds" customAccent="#8B5CF6" value={rounds} displayValue={String(rounds)} onChange={setRounds} min={1} max={100} />
-            <FieldRow label="Cycles" customAccent="#8B5CF6" value={cycles} displayValue={String(cycles)} onChange={setCycles} min={1} max={100} />
+            <FieldRow label="Rounds" customAccent="#8B5CF6" value={rounds} displayValue={String(rounds)} onChange={(v) => { setRounds(v); markChanged() }} min={1} max={100} />
+            <FieldRow label="Cycles" customAccent="#8B5CF6" value={cycles} displayValue={String(cycles)} onChange={(v) => { setCycles(v); markChanged() }} min={1} max={100} />
           </div>
         </SectionCard>
 
         {/* Intervals — durations */}
-        <SectionCard title="Intervals" accent={PHASE_COLORS.work}>
+        <SectionCard title="Intervals">
           <div className="divide-y divide-zinc-700">
-            <FieldRow label="Prepare" color="prepare" value={prepare} onChange={setPrepare} min={0} max={600} useDurationPicker />
-            <FieldRow label="Work" color="work" value={work} onChange={setWork} min={1} max={3600} useDurationPicker />
-            <FieldRow label="Rest" color="rest" value={rest} onChange={setRest} min={0} max={3600} useDurationPicker />
-            <FieldRow label="Rest Between Cycles" value={restBetweenCycles} onChange={setRestBetweenCycles} customAccent="#FF9800" min={0} max={3600} useDurationPicker />
-            <FieldRow label="Cooldown" color="cooldown" value={cooldown} onChange={setCooldown} min={0} max={600} useDurationPicker />
+            <FieldRow label="Prepare" color="prepare" value={prepare} onChange={(v) => { setPrepare(v); markChanged() }} min={0} max={600} useDurationPicker />
+            <FieldRow label="Work" color="work" value={work} onChange={(v) => { setWork(v); markChanged() }} min={1} max={3600} useDurationPicker />
+            <FieldRow label="Rest" color="rest" value={rest} onChange={(v) => { setRest(v); markChanged() }} min={0} max={3600} useDurationPicker />
+            <FieldRow label="Rest Between Cycles" value={restBetweenCycles} onChange={(v) => { setRestBetweenCycles(v); markChanged() }} customAccent="#FF9800" min={0} max={3600} useDurationPicker />
+            <FieldRow label="Cooldown" color="cooldown" value={cooldown} onChange={(v) => { setCooldown(v); markChanged() }} min={0} max={600} useDurationPicker />
           </div>
         </SectionCard>
 
@@ -190,7 +248,7 @@ export default function WorkoutEditPage() {
         <div className="mt-auto pt-6">
           <div className="flex gap-3">
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigateAway('/')}
               className="flex-1 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 font-semibold text-white transition hover:bg-white/10"
             >
               Cancel

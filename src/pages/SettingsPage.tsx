@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getSettings, updateSettings } from "../store/settingsStore";
 import type { GlobalSettings } from "../types";
@@ -151,13 +151,41 @@ function CountdownRow({ value, onChange }: CountdownRowProps) {
 export default function SettingsPage() {
   const navigate = useNavigate();
   const [settings, setSettings] = useState(() => getSettings());
+  const [hasChanges, setHasChanges] = useState(false);
+
+  // Track unsaved changes
+  useEffect(() => {
+    const handleChange = () => setHasChanges(true);
+    window.addEventListener('change', handleChange, { once: true });
+
+    // Warn before leaving if there are pending changes (Safari bfcache)
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (!hasChanges) return;
+      e.preventDefault();
+      e.returnValue = '';
+      // Clear flag so subsequent localStorage writes flush before nav commits
+      setHasChanges(false);
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('change', handleChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [hasChanges]);
 
   const handleToggleChange = (key: keyof GlobalSettings, value: boolean) => {
+    // Mark dirty so we know to warn about exiting
+    if (!hasChanges) setHasChanges(true);
+
     const nextSettings = updateSettings({ [key]: value });
     setSettings(nextSettings);
   };
 
   const handleCountdownChange = (value: number) => {
+    if (!hasChanges) setHasChanges(true);
+
     const nextSettings = updateSettings({ countdownSeconds: value });
     setSettings(nextSettings);
   };

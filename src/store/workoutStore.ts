@@ -2,6 +2,22 @@ import type { WorkoutConfig } from '../types/workout'
 
 const STORAGE_KEY = 'workouts';
 
+// Simple pub/sub for same-tab page notifications (storage event doesn't fire on the originating tab)
+type Listener = () => void
+const _listeners = new Set<Listener>()
+
+export function subscribeWorkoutChange(fn: Listener): () => void {
+  _listeners.add(fn)
+  return () => { _listeners.delete(fn) }
+}
+
+function notifyWorkoutChanged(): void {
+  // Notify listeners in this tab (storage event only fires cross-tab)
+  _listeners.forEach(fn => fn())
+  // Also broadcast via postMessage for robustness — any page in the same tab can catch it
+  try { window.postMessage({ type: '__workouts_changed' }, '*') } catch {}
+}
+
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
@@ -30,6 +46,7 @@ export function createWorkout(
   const workouts = getWorkouts();
   workouts.push(newWorkout);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(workouts));
+  notifyWorkoutChanged();
 
   return newWorkout;
 }
@@ -53,6 +70,7 @@ export function updateWorkout(
 
   workouts[index] = updated;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(workouts));
+  notifyWorkoutChanged();
 
   return updated;
 }
@@ -61,4 +79,5 @@ export function deleteWorkout(id: string): void {
   const workouts = getWorkouts();
   const filtered = workouts.filter((w) => w.id !== id);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+  notifyWorkoutChanged();
 }
