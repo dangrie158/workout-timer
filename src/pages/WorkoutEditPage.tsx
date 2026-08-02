@@ -129,9 +129,16 @@ export default function WorkoutEditPage() {
     <div className="min-h-screen bg-zinc-950 text-white">
       <div className="flex min-h-screen w-full flex-col px-4 pb-[2rem] pt-[calc(1rem+env(safe-area-inset-top))] sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-6">
-          <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">Edit</p>
-          <h1 className="mt-1 text-lg font-semibold text-white">{id ? 'Workout' : 'New workout'}</h1>
+        <div className="mb-6 flex items-center justify-between">
+          <button
+            onClick={() => navigate('/')}
+            className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/10">
+            ← Workouts
+          </button>
+          <div className="text-right">
+            <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">Edit</p>
+            <h1 className="mt-1 text-lg font-semibold text-white">{id ? 'Workout' : 'New workout'}</h1>
+          </div>
         </div>
 
         {/* Name */}
