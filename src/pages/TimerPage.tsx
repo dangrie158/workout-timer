@@ -322,7 +322,7 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
           </div>
         </div>
 
-        <div className="relative rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.12),_rgba(9,9,11,0.96)_62%)] px-4 py-6 shadow-2xl shadow-black/30">
+        <div className="relative rounded-[2rem] border border-white/10 bg-zinc-900/80 px-4 py-6 shadow-2xl shadow-black/30">
           <button
             onClick={handleReset}
             disabled={!canReset}
