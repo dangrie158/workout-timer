@@ -7,24 +7,21 @@ html, body, #root {
   width: 100%;
   margin: 0;
   padding: 0;
-  background-color: #000000;
 }
 
 body {
   min-height: 100dvh;
   overflow-y: auto;
   overscroll-behavior-y: contain;
+  /* Fill safe-area gutters so the background extends behind status bar and home indicator */
+  background-color: #09090b; /* zinc-950 — matches the app's page bg, not the browser chrome color */
+  -webkit-tap-highlight-color: transparent;
 }
 
 #root {
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
-  /* Account for safe areas on notched devices */
-  padding-top: max(0px, env(safe-area-inset-top));
-  padding-bottom: max(0px, env(safe-area-inset-bottom));
-  padding-left: max(0px, env(safe-area-inset-left));
-  padding-right: max(0px, env(safe-area-inset-right));
 }
 
 .no-scrollbar {
