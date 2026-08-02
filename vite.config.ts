@@ -25,6 +25,7 @@ const manifestPlugin = {
 export default defineConfig({
   plugins: [react(), manifestPlugin],
   base,
+  server: { https: true },
   test: {
     environment: 'jsdom',
     globals: true,

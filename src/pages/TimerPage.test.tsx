@@ -16,6 +16,7 @@ vi.mock('../hooks/useAudio', () => ({
     playPhaseTransition,
     playWorkoutComplete: vi.fn(),
     playCountdownBeep,
+    primeAudioFromGesture: vi.fn(),
   }),
 }))
 
