@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { getWorkouts, subscribeWorkoutChange } from '../store/workoutStore'
+import { useNavigate, useNavigation } from 'react-router-dom'
+import { getWorkouts } from '../store/workoutStore'
 
 import WorkoutCard from '../components/WorkoutCard'
 
@@ -23,40 +23,27 @@ function PlusIcon() {
 
 export default function HomePage() {
   const navigate = useNavigate()
-  const [workouts, setWorkouts] = useState(() => getWorkouts())
+  const navigation = useNavigation()
 
-  // Refresh workouts whenever another page modifies localStorage
-  const refreshWorkouts = useCallback(() => {
-    setWorkouts(getWorkouts())
-  }, [])
-
+  // Trigger re-render when navigating away and back (React Router changes key)
   useEffect(() => {
-    const unsub = subscribeWorkoutChange(refreshWorkouts)
-    window.addEventListener('storage', refreshWorkouts)
-    // Catch postMessage broadcast from WorkoutEditPage in same tab
-    const handlePostMessage = (e: MessageEvent) => {
-      if (e.data?.type === '__workouts_changed') refreshWorkouts()
-    }
-    window.addEventListener('message', handlePostMessage)
-    return () => {
-      unsub()
-      window.removeEventListener('storage', refreshWorkouts)
-      window.removeEventListener('message', handlePostMessage)
-    }
-  }, [refreshWorkouts])
+    // reading navigation.key here forces a re-render whenever it changes
+    void navigation.key
+  }, [navigation.key])
 
-  // Fallback for bfcache restore (Safari iOS): the above listeners are lost when the page is discarded
+  // Fallback for bfcache restore (Safari iOS): effect above is lost on discard
   useEffect(() => {
-    const handlePageshow = () => refreshWorkouts()
+    const handlePageshow = () => navigate((p) => ({ ...p }), { replace: true })
     window.addEventListener('pageshow', handlePageshow)
     return () => window.removeEventListener('pageshow', handlePageshow)
-  }, [])
+  }, [navigate])
 
   const workoutsList = getWorkouts()
 
-  const handleWorkoutDeleted = () => {
-    refreshWorkouts()
-  }
+  const handleWorkoutDeleted = useCallback(() => {
+    // trigger re-render via navigation state change
+    navigate((p) => ({ ...p }), { replace: true })
+  }, [navigate])
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">

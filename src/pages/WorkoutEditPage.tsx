@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getWorkouts, createWorkout, updateWorkout } from '../store/workoutStore'
 import FieldRow from '../components/FieldRow'
@@ -41,6 +41,8 @@ export default function WorkoutEditPage() {
   const { id } = useParams<{ id?: string }>()
   const navigate = useNavigate()
 
+  const nameRef = useRef<HTMLDivElement>(null)
+
   const [name, setName] = useState('')
   const [prepare, setPrepare] = useState(30)
   const [work, setWork] = useState(60)
@@ -52,6 +54,11 @@ export default function WorkoutEditPage() {
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [hasChanges, setHasChanges] = useState(false)
+
+  const showValidation = useCallback((msg: string) => {
+    setError(msg)
+    nameRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [])
 
   // Load existing workout if editing (also handles bfcache restore)
   useEffect(() => {
@@ -130,7 +137,7 @@ export default function WorkoutEditPage() {
 
   const handleSave = () => {
     if (!name.trim()) {
-      setError('Workout name is required')
+      showValidation('Workout name is required')
       return
     }
 
@@ -159,7 +166,7 @@ export default function WorkoutEditPage() {
 
       navigate('/')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save workout')
+      showValidation(err instanceof Error ? err.message : 'Failed to save workout')
     }
   }
 
@@ -200,7 +207,7 @@ export default function WorkoutEditPage() {
         </div>
 
         {/* Name */}
-        <div className="rounded-[2rem] border border-white/10 bg-zinc-900/80 p-5 shadow-xl shadow-black/25">
+        <div ref={nameRef} className="rounded-[2rem] border border-white/10 bg-zinc-900/80 p-5 shadow-xl shadow-black/25">
           {error && (
             <p className="mb-4 text-sm text-red-400">{error}</p>
           )}
