@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getWorkouts } from '../store/workoutStore'
 import type { WorkoutConfig } from '../types/workout'
@@ -23,11 +23,7 @@ function PlusIcon() {
 
 export default function HomePage() {
   const navigate = useNavigate()
-  const [workouts, setWorkouts] = useState<WorkoutConfig[]>([])
-
-  useEffect(() => {
-    setWorkouts(getWorkouts())
-  }, [])
+  const [workouts, setWorkouts] = useState(() => getWorkouts())
 
   const handleWorkoutDeleted = () => {
     setWorkouts(getWorkouts())
