@@ -11,7 +11,7 @@ function SectionCard({ title, children, accent }: { title: string; children: Rea
         ? { background: `radial-gradient(circle at 50% -20%, ${accent}26, #18181bcc 62%), #18181b`, border: 'border-white/10' }
         : undefined
       }>
-      <div className={accent ? 'pt-4' : ''}>
+      <div className={accent ? 'pt-4' : 'pt-[1px]'}>
         <h2 className="mb-4 px-5 text-sm font-semibold uppercase tracking-[0.24em] text-zinc-500">{title}</h2>
         {children}
       </div>
