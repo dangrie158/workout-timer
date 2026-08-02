@@ -32,9 +32,9 @@ export default function FieldRow({
 
   return (
     <>
-      <button
+      <div
+        className="w-full px-4 py-4 flex items-center gap-3 cursor-pointer active:bg-zinc-800 hover:bg-zinc-800/50 transition-colors"
         onClick={() => setIsPickerOpen(true)}
-        className="w-full px-4 py-4 flex items-center gap-3 border-b border-zinc-700 hover:bg-zinc-800/50 transition-colors active:bg-zinc-800"
       >
         <div className={`w-3 h-3 rounded-full ${colorClasses[color]}`} />
 
@@ -56,7 +56,7 @@ export default function FieldRow({
             d="M9 5l7 7-7 7"
           />
         </svg>
-      </button>
+      </div>
 
       <NumberPicker
         isOpen={isPickerOpen}
