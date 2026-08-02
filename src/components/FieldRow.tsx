@@ -39,12 +39,18 @@ export default function FieldRow({
   // Duration picker state
   const dMins = Math.floor(value / 60)
   const dSecs = value % 60
-  const displayMins = useDurationPicker ? dMins : undefined
-  const displaySecs = useDurationPicker ? dSecs : undefined
   const maxMinutes = propMaxMins ?? (useDurationPicker ? Math.floor(max / 60) : undefined)
 
-  // Build mm:ss display string when using duration picker and no explicit displayValue
+  // Default display: mm:ss with 2 digits when ≥60s, plain ss otherwise
   const durationDisplay = useMemo(() => {
+    if (displayValue) return null
+    const m = Math.floor(value / 60)
+    const s = value % 60
+    return m > 0 ? `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}` : String(s)
+  }, [value, displayValue])
+
+  // Picker-modal display: always MM:SS (two wheels, so full format is clearer)
+  const pickerDisplay = useMemo(() => {
     if (!useDurationPicker || displayValue) return null
     return `${String(dMins).padStart(2, '0')}:${String(dSecs).padStart(2, '0')}`
   }, [dMins, dSecs, useDurationPicker, displayValue])
@@ -73,7 +79,7 @@ export default function FieldRow({
         <div className={`flex-1 text-left ${accent ? 'pl-3' : ''}`}>
           <div className="text-sm text-zinc-400">{label}</div>
           <div className="text-lg font-medium text-white">
-            {displayValue ?? durationDisplay ?? `${value}s`}
+            {displayValue ?? pickerDisplay ?? durationDisplay}
           </div>
         </div>
 

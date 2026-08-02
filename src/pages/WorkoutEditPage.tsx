@@ -11,7 +11,7 @@ function SectionCard({ title, children, accent }: { title: string; children: Rea
         ? { background: `radial-gradient(circle at 50% -20%, ${accent}26, #18181bcc 62%), #18181b`, border: 'border-white/10' }
         : undefined
       }>
-      <div className={accent ? 'pt-4' : 'pt-[1px]'}>
+      <div className="pt-4">
         <h2 className="mb-4 px-5 text-sm font-semibold uppercase tracking-[0.24em] text-zinc-500">{title}</h2>
         {children}
       </div>
@@ -119,6 +119,12 @@ export default function WorkoutEditPage() {
     restBetweenCycles +
     cooldown
 
+  const formatTotalDuration = (total: number) => {
+    const m = Math.floor(total / 60)
+    const s = total % 60
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+  }
+
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
       <div className="flex min-h-screen w-full flex-col px-4 pb-[2rem] pt-[calc(1rem+env(safe-area-inset-top))] sm:px-6 lg:px-8">
@@ -168,7 +174,7 @@ export default function WorkoutEditPage() {
         {/* Summary */}
         <SectionCard title="Summary">
           <div className="px-5 pb-5 grid grid-cols-2 gap-3">
-            <StatCell label="Duration" value={`${totalDuration}s`} accent={PHASE_COLORS.work} />
+            <StatCell label="Duration" value={formatTotalDuration(totalDuration)} accent={PHASE_COLORS.work} />
             <StatCell label="Cycles × Rounds" value={`${cycles}×${rounds}`} accent={PHASE_COLORS.cooldown} />
           </div>
         </SectionCard>
