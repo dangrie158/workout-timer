@@ -4,6 +4,41 @@ import { getWorkouts, createWorkout, updateWorkout } from '../store/workoutStore
 import FieldRow from '../components/FieldRow'
 import { PHASE_COLORS } from '../utils/timerUi'
 
+function SectionCard({ title, children, accent }: { title: string; children: React.ReactNode; accent?: string }) {
+  return (
+    <div className="rounded-[2rem] border border-white/10 bg-zinc-900/80 shadow-xl shadow-black/25 mt-4 overflow-hidden">
+      {accent ? (
+        <div className="h-[3px] bg-gradient-to-r from-[color:var(--c)] to-transparent" style={{ '--c': accent } as React.CSSProperties} />
+      ) : null}
+      <div className={accent ? 'pt-4' : ''}>
+        <h2 className="mb-4 px-5 text-sm font-semibold uppercase tracking-[0.24em] text-zinc-500">{title}</h2>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+function StatCell({ label, value, accent }: { label: string; value: string; accent?: string }) {
+  return (
+    <div className="rounded-xl border border-white/5 bg-zinc-950/60 overflow-hidden">
+      {accent ? (
+        <div className="h-[3px] w-full bg-gradient-to-r from-[color:var(--c)] to-transparent" style={{ '--c': accent } as React.CSSProperties} />
+      ) : null}
+      <div className="px-3 py-3">
+        <div className="mb-1 flex items-center gap-1.5">
+          {accent ? (
+            <span className="h-[3px] w-3 rounded-full" style={{ backgroundColor: accent }} />
+          ) : (
+            <span className="h-[3px] w-3 rounded-full bg-zinc-600" />
+          )}
+          <span className="text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-zinc-500">{label}</span>
+        </div>
+        <div className="text-sm font-semibold text-white">{value}</div>
+      </div>
+    </div>
+  )
+}
+
 export default function WorkoutEditPage() {
   const { id } = useParams<{ id?: string }>()
   const navigate = useNavigate()
@@ -109,45 +144,32 @@ export default function WorkoutEditPage() {
           />
         </div>
 
-        {/* Intervals */}
-        <div className="rounded-[2rem] border border-white/10 bg-zinc-900/80 p-5 shadow-xl shadow-black/25 mt-4">
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-[0.24em] text-zinc-500">Intervals</h2>
+        {/* Structure — rounds, cycles */}
+        <SectionCard title="Structure" accent="#8B5CF6">
+          <div className="divide-y divide-zinc-700">
+            <FieldRow label="Rounds" customAccent="#8B5CF6" value={rounds} displayValue={String(rounds)} onChange={setRounds} min={1} max={100} />
+            <FieldRow label="Cycles" customAccent="#8B5CF6" value={cycles} displayValue={String(cycles)} onChange={setCycles} min={1} max={100} />
+          </div>
+        </SectionCard>
+
+        {/* Intervals — durations */}
+        <SectionCard title="Intervals" accent={PHASE_COLORS.work}>
           <div className="divide-y divide-zinc-700">
             <FieldRow label="Prepare" color="prepare" value={prepare} onChange={setPrepare} min={0} max={600} />
             <FieldRow label="Work" color="work" value={work} onChange={setWork} min={1} max={3600} />
             <FieldRow label="Rest" color="rest" value={rest} onChange={setRest} min={0} max={3600} />
+            <FieldRow label="Rest Between Cycles" value={restBetweenCycles} onChange={setRestBetweenCycles} customAccent="#FF9800" min={0} max={3600} />
             <FieldRow label="Cooldown" color="cooldown" value={cooldown} onChange={setCooldown} min={0} max={600} />
           </div>
-        </div>
-
-        {/* Structure */}
-        <div className="rounded-[2rem] border border-white/10 bg-zinc-900/80 p-5 shadow-xl shadow-black/25 mt-4">
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-[0.24em] text-zinc-500">Structure</h2>
-          <FieldRow label="Rounds" color="cycle" value={rounds} displayValue={String(rounds)} onChange={setRounds} min={1} max={100} hideTopBorder />
-          <FieldRow label="Cycles" color="cycle" value={cycles} displayValue={String(cycles)} onChange={setCycles} min={1} max={100} />
-          <FieldRow label="Rest Between Cycles" color="rest" value={restBetweenCycles} onChange={setRestBetweenCycles} min={0} max={3600} hideBottomBorder />
-        </div>
+        </SectionCard>
 
         {/* Summary */}
-        <div className="mt-4 rounded-[2rem] border border-white/10 bg-zinc-900/80 p-5 shadow-xl shadow-black/25">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-[0.24em] text-zinc-500">Summary</h2>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-xl border border-white/5 bg-zinc-950/60 p-3">
-              <div className="mb-1 flex items-center gap-1.5">
-                <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: PHASE_COLORS.prepare }} />
-                <span className="text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-zinc-500">Duration</span>
-              </div>
-              <div className="text-sm font-semibold text-white">{totalDuration}s</div>
-            </div>
-            <div className="rounded-xl border border-white/5 bg-zinc-950/60 p-3">
-              <div className="mb-1 flex items-center gap-1.5">
-                <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: PHASE_COLORS.work }} />
-                <span className="text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-zinc-500">Structure</span>
-              </div>
-              <div className="text-sm font-semibold text-white">{cycles}×{rounds}</div>
-            </div>
+        <SectionCard title="Summary">
+          <div className="px-5 pb-5 grid grid-cols-2 gap-3">
+            <StatCell label="Duration" value={`${totalDuration}s`} accent={PHASE_COLORS.work} />
+            <StatCell label="Cycles × Rounds" value={`${cycles}×${rounds}`} accent={PHASE_COLORS.cooldown} />
           </div>
-        </div>
+        </SectionCard>
 
         {/* Action buttons */}
         <div className="mt-auto pt-6">
