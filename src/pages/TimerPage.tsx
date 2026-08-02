@@ -322,7 +322,7 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
           </div>
         </div>
 
-        <div className="relative rounded-[2rem] border border-white/10 bg-zinc-900/80 px-4 py-6 shadow-2xl shadow-black/30">
+        <div className="relative rounded-[2rem] border border-white/10 px-4 py-6 shadow-2xl shadow-black/30" style={{ background: accent ? `radial-gradient(circle at 50% -20%, ${accent}3a, rgba(9,9,11,0.8) 62%), #18181bca` : undefined }}>
           <button
             onClick={handleReset}
             disabled={!canReset}
@@ -376,15 +376,12 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
 
         <div className="mt-4 grid grid-cols-2 gap-3">
           <PhaseBlock
-            label="Current phase"
-            value={PHASE_LABELS[phase]}
+            label="Cycle"
+            value={`${Math.min(cycle, workout.cycles)} / ${workout.cycles}`}
             detail={
-              phase === "complete"
-                ? "All intervals finished"
-                : `${formatCompactDuration(remaining)} left`
+              phase === "restBetweenCycles" ? "Between cycles" : "Current cycle"
             }
-            accent={accent}
-            isActive
+            accent={PHASE_COLORS.cooldown}
           />
           <PhaseBlock
             label="Round"
@@ -397,12 +394,15 @@ function TimerExperience({ workout, onExit }: TimerExperienceProps) {
             accent={PHASE_COLORS.work}
           />
           <PhaseBlock
-            label="Cycle"
-            value={`${Math.min(cycle, workout.cycles)} / ${workout.cycles}`}
+            label="Current phase"
+            value={PHASE_LABELS[phase]}
             detail={
-              phase === "restBetweenCycles" ? "Between cycles" : "Current cycle"
+              phase === "complete"
+                ? "All intervals finished"
+                : `${formatCompactDuration(remaining)} left`
             }
-            accent={PHASE_COLORS.cooldown}
+            accent={accent}
+            isActive
           />
           <PhaseBlock
             label="Elapsed"
