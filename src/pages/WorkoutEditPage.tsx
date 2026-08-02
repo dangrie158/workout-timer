@@ -171,7 +171,7 @@ export default function WorkoutEditPage() {
       </div>
 
       {/* Summary info */}
-      <div className="mt-6 mx-4 mb-40 p-4 rounded-lg bg-zinc-800/50 border border-zinc-700">
+      <div className="mt-6 mx-4 mb-20 p-4 rounded-lg bg-zinc-800/50 border border-zinc-700">
         <h3 className="text-sm font-semibold text-zinc-300 mb-2">Workout Summary</h3>
         <div className="text-xs text-zinc-400 space-y-1">
           <div>
