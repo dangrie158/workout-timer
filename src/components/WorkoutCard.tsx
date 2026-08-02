@@ -65,7 +65,6 @@ export default function WorkoutCard({ workout, onDelete }: WorkoutCardProps) {
   const navigate = useNavigate()
   const totalDuration = calculateTotalDuration(workout)
   const timerPath = `/workout/${workout.id}/timer`
-  const accent = PHASE_COLORS.work
 
   const handleOpenWorkout = () => {
     navigate(timerPath)

@@ -393,7 +393,7 @@ export function useAudio(): UseAudioReturn {
       // Stop heartbeat element.
       const hb = heartbeatElRef.current
       if (hb) {
-        void hb.pause().catch(() => {})
+        void hb.pause()
         hb.remove()
         if (hb.src.startsWith('blob:')) URL.revokeObjectURL(hb.src)
         heartbeatElRef.current = null

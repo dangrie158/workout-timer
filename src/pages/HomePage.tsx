@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getWorkouts } from '../store/workoutStore'
-import type { WorkoutConfig } from '../types/workout'
+
 import WorkoutCard from '../components/WorkoutCard'
 
 function SettingsIcon() {
