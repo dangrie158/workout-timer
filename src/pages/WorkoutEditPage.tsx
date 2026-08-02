@@ -157,11 +157,11 @@ export default function WorkoutEditPage() {
         {/* Intervals — durations */}
         <SectionCard title="Intervals" accent={PHASE_COLORS.work}>
           <div className="divide-y divide-zinc-700">
-            <FieldRow label="Prepare" color="prepare" value={prepare} onChange={setPrepare} min={0} max={600} />
-            <FieldRow label="Work" color="work" value={work} onChange={setWork} min={1} max={3600} />
-            <FieldRow label="Rest" color="rest" value={rest} onChange={setRest} min={0} max={3600} />
-            <FieldRow label="Rest Between Cycles" value={restBetweenCycles} onChange={setRestBetweenCycles} customAccent="#FF9800" min={0} max={3600} />
-            <FieldRow label="Cooldown" color="cooldown" value={cooldown} onChange={setCooldown} min={0} max={600} />
+            <FieldRow label="Prepare" color="prepare" value={prepare} onChange={setPrepare} min={0} max={600} useDurationPicker />
+            <FieldRow label="Work" color="work" value={work} onChange={setWork} min={1} max={3600} useDurationPicker />
+            <FieldRow label="Rest" color="rest" value={rest} onChange={setRest} min={0} max={3600} useDurationPicker />
+            <FieldRow label="Rest Between Cycles" value={restBetweenCycles} onChange={setRestBetweenCycles} customAccent="#FF9800" min={0} max={3600} useDurationPicker />
+            <FieldRow label="Cooldown" color="cooldown" value={cooldown} onChange={setCooldown} min={0} max={600} useDurationPicker />
           </div>
         </SectionCard>
 

@@ -96,7 +96,7 @@ export default function WorkoutCard({ workout, onDelete }: WorkoutCardProps) {
   }
 
   return (
-    <div className="rounded-[2rem] border border-white/10 bg-zinc-900/80 shadow-xl shadow-black/25 transition hover:bg-zinc-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-400 overflow-hidden">
+    <div className="rounded-[2rem] border border-white/10 bg-zinc-900/80 shadow-xl shadow-black/25 transition hover:bg-zinc-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-400 overflow-hidden cursor-pointer" onClick={handleOpenWorkout} tabIndex={0} onKeyDown={handleCardKeyDown}>
 
       {/* Phase-colored top glow */}
       <div className="absolute inset-x-0 -top-16 h-32 pointer-events-none" aria-hidden="true" style={{ background: `radial-gradient(circle at 50% 50%, ${accent}3a 0px, transparent 70px)` }}>
